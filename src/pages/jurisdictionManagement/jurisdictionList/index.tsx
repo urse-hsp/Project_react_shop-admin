@@ -43,11 +43,13 @@ const columns = [
   },
 ]
 
-class RoleList extends Component<TableListItem> {
+class JurisdictionList extends Component<TableListItem> {
   state = {
-    dataList: [],
+    dataList: [], // 列表数据
+    pageSize: 16, // 一页显示16条
   }
 
+  // 读取数据
   async componentDidMount() {
     const { data, meta } = await getJurisdictionList()
     data.map((item: any, index: any) => {
@@ -62,7 +64,12 @@ class RoleList extends Component<TableListItem> {
     }
   }
 
-  onShowSizeChange = () => {}
+  // 切换显示条数
+  onShowSizeChange = (current: any, size: any) => {
+    this.setState({
+      pageSize: size,
+    })
+  }
 
   render() {
     const { dataList } = this.state
@@ -74,9 +81,9 @@ class RoleList extends Component<TableListItem> {
             columns={columns}
             bordered
             pagination={{
-              pageSize: 16,
+              pageSize: this.state.pageSize,
               pageSizeOptions: ['5', '10', '16', '20'],
-              // total: dataList.length,
+              onShowSizeChange: this.onShowSizeChange,
               showSizeChanger: true,
             }}
           />
@@ -86,4 +93,4 @@ class RoleList extends Component<TableListItem> {
   }
 }
 
-export default RoleList
+export default JurisdictionList
