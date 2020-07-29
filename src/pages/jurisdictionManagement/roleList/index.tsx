@@ -1,33 +1,34 @@
 import React, { useState, useEffect } from 'react'
 import { PageHeaderWrapper } from '@ant-design/pro-layout'
 import { Card, Table, Tag, Divider, Row, Col, Button, Popconfirm, message, Modal } from 'antd'
-import {
-  EditOutlined,
-  DeleteOutlined,
-  SettingOutlined,
-  CaretRightOutlined,
-  QuestionCircleOutlined,
-} from '@ant-design/icons'
+import { EditOutlined, DeleteOutlined, SettingOutlined, CaretRightOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import AddRoleFrom from './components/addRole'
-import { getroleList, deleteRoleList, deleteRoleJurisdiction } from './service'
+import Allocation from './components/allocation'
+import { getroleList, deleteRoleList, deleteRoleJurisdiction, AddRoleList, amendRoleList, getAllJurisdiction } from './service'
 import styles from './style.less'
 
 const { confirm } = Modal
 
 // interface Member {
-//   RoleData: any
+//   // RoleData: any
+//   id: any
 // }
 
 const RoleList: React.FC<{}> = () => {
-  const [RoleData, setRoleList] = useState([])
+  const [RoleData, setRoleData] = useState([])
   const [Visible, setVisible] = useState(false)
   const [alterAdd, setAlterAdd] = useState(false)
+  const [amendData, setamendData] = useState({})
+  const [showAllocation, setShowAllocation] = useState(false)
+  const [AllocationJurisdiction, setAllocationJurisdiction] = useState([])
 
   // 循环递归给每个数据添加key值
   const recursion = (datas: any) => {
     datas.forEach((item: any, index: number) => {
       const Obj = item
-      Obj.key = index + 1
+      Obj.key = item.id
+      Obj.key2 = index + 1
+      Obj.title = item.authName
       if (item.children) {
         recursion(item.children)
       }
@@ -40,72 +41,47 @@ const RoleList: React.FC<{}> = () => {
     const res = await getroleList()
     if (res.meta.status === 200) {
       recursion(res.data)
-      setRoleList(res.data)
+      setRoleData(res.data)
     }
   }
 
   // tab标签关闭时的回调，删除指定角色权限
-  // const showDeleteConfirm = () => {
-  //   console.log(123)
-  //   confirm({
-  //     title: 'Are you sure delete this task?',
-  //     icon: <QuestionCircleOutlined />,
-  //     content: 'Some descriptions',
-  //     okText: 'Yes',
-  //     okType: 'danger',
-  //     cancelText: 'No',
-  //     onOk() {
-  //       console.log('OK')
-  //     },
-  //     onCancel() {
-  //       console.log('Cancel')
-  //     },
-  //   })
-  // }
-
-  // 递归循环出角色权限
-  const expandedRowRender = (record: any) => {
-    return record.children.map((item: any, index: any) => {
-      let recordData = null
-      if (item.children) {
-        recordData = (
-          <Row key={item.id} className={styles.parameter}>
-            <Col span={5}>
-              <Tag
-                color="blue"
-                closable
-                onClose={() => {
-                  // showDeleteConfirm()
-                }}
-              >
-                {item.authName}
-              </Tag>
-              <CaretRightOutlined style={{ fontSize: '11px' }} />
-            </Col>
-            <Col span={19}>{expandedRowRender(item)}</Col>
-            {record.children.length === index + 1 ? '' : <Divider />}
-          </Row>
-        )
-      } else {
-        recordData = (
-          <Tag color="orange" closable key={item.id}>
-            {item.authName}
-          </Tag>
-        )
-      }
-      return recordData
+  const showDeleteConfirm = async (recordId: any, itemId: number, e: any) => {
+    e.preventDefault()
+    confirm({
+      title: '确定要删除该角色此限权?',
+      icon: <QuestionCircleOutlined style={{ color: 'red' }} />,
+      // content: '',
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'No',
+      onOk: async () => {
+        const recordIds = recordId.id
+        const { meta } = await deleteRoleJurisdiction({ recordIds, itemId })
+        if (meta.status !== 200) {
+          return message.error(meta.msg)
+        }
+        message.success('删除该限权成功')
+        getRoleListData()
+        return true
+      },
+      onCancel() {
+        // console.log('Cancel')
+      },
     })
   }
 
   // 隐藏对话框
   const onCancel = () => {
     setVisible(false)
+    setShowAllocation(false)
   }
 
   // 点击添加角色，显示对话框
-  const addRole = (boole: boolean) => {
+  const addRole = (boole: boolean, data: any) => {
     setVisible(true)
     setAlterAdd(boole)
+    setamendData(data)
   }
 
   // 删除角色
@@ -119,17 +95,78 @@ const RoleList: React.FC<{}> = () => {
     return null
   }
 
+  // 添加角色和修改角色
+  const addRoleList = async (param: any) => {
+    if (!alterAdd) {
+      const { meta } = await AddRoleList(param)
+      if (meta.status !== 201) {
+        return message.error(meta.msg)
+      }
+      message.success('角色创建成功')
+    } else {
+      const { id } = amendData
+      const { meta } = await amendRoleList({ id, param })
+      if (meta.status !== 200) {
+        return message.error(meta.msg)
+      }
+      message.success('角色修改成功')
+    }
+    setVisible(false)
+    getRoleListData()
+    return true
+  }
+
+  // 显示分配权限对话框
+  const showAllocationJurisdiction = async () => {
+    setShowAllocation(true)
+    const { data, meta } = await getAllJurisdiction()
+    if (meta.status !== 200) {
+      return message.error(meta.msg)
+    }
+    recursion(data)
+    console.log(data)
+    setAllocationJurisdiction(data)
+  }
+
   useEffect(() => {
     getRoleListData()
   }, [])
 
+  // 递归循环出角色权限
+  const expandedRowRender = (record: any, record2: any) => {
+    return record.children.map((item: any, index: any) => {
+      let recordData = null
+      if (item.children) {
+        recordData = (
+          <Row key={item.id} className={styles.parameter}>
+            <Col span={5}>
+              <Tag color="blue" closable onClose={(e: any) => showDeleteConfirm(record2, item.id, e)}>
+                {item.authName}
+              </Tag>
+              <CaretRightOutlined style={{ fontSize: '11px' }} />
+            </Col>
+            <Col span={19}>{expandedRowRender(item, record2)}</Col>
+            {record.children.length === index + 1 ? '' : <Divider />}
+          </Row>
+        )
+      } else {
+        recordData = (
+          <Tag color="orange" closable key={item.id} onClose={(e: any) => showDeleteConfirm(record2, item.id, e)}>
+            {item.authName}
+          </Tag>
+        )
+      }
+      return recordData
+    })
+  }
+
   const title = (
-    <Button type="primary" onClick={() => addRole(false)}>
+    <Button type="primary" onClick={() => addRole(false, null)}>
       添加角色
     </Button>
   )
   const columns = [
-    { title: '', dataIndex: 'key', key: 'key', width: 50 },
+    { title: '', dataIndex: 'key2', key: 'key2', width: 50 },
     { title: '角色名称', dataIndex: 'roleName', key: 'roleName' },
     { title: '角色描述', dataIndex: 'roleDesc', key: 'roleDesc' },
     {
@@ -137,15 +174,10 @@ const RoleList: React.FC<{}> = () => {
       dataIndex: '',
       key: 'x',
       width: 320,
-      render: (_: any) => {
+      render: (_: any, data: any) => {
         return (
           <div className={styles.operate}>
-            <Button
-              type="link"
-              icon={<EditOutlined style={{ fontSize: '13px' }} />}
-              size="small"
-              onClick={() => addRole(true)}
-            >
+            <Button type="link" icon={<EditOutlined style={{ fontSize: '13px' }} />} size="small" onClick={() => addRole(true, data)}>
               编辑
             </Button>
             <Popconfirm
@@ -158,7 +190,7 @@ const RoleList: React.FC<{}> = () => {
                 Delete
               </Button>
             </Popconfirm>
-            <Button type="link" icon={<SettingOutlined style={{ fontSize: '13px' }} />} size="small">
+            <Button type="link" icon={<SettingOutlined style={{ fontSize: '13px' }} />} size="small" onClick={showAllocationJurisdiction}>
               分配权限
             </Button>
           </div>
@@ -174,8 +206,8 @@ const RoleList: React.FC<{}> = () => {
           columns={columns}
           bordered
           expandable={{
-            childrenColumnName: ' ', // indentSize: 200,
-            expandedRowRender: (record) => <div style={{ margin: 0 }}>{expandedRowRender(record)}</div>,
+            childrenColumnName: ' ',
+            expandedRowRender: (record) => <div style={{ margin: 0 }}>{expandedRowRender(record, record)}</div>,
             rowExpandable: (record) => record.children.length > 0,
           }}
           dataSource={RoleData}
@@ -183,7 +215,8 @@ const RoleList: React.FC<{}> = () => {
             hideOnSinglePage: true,
           }}
         />
-        <AddRoleFrom modalVisible={Visible} onCancel={onCancel} alterAdd={alterAdd} />
+        <AddRoleFrom modalVisible={Visible} onCancel={onCancel} alterAdd={alterAdd} amendData={amendData} addRoleLists={addRoleList} />
+        <Allocation modalVisible={showAllocation} onCancel={onCancel} AllocationJurisdiction={AllocationJurisdiction} />
       </Card>
     </PageHeaderWrapper>
   )
