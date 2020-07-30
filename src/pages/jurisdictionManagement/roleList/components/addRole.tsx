@@ -38,7 +38,7 @@ const addRole: React.FC<CreateFormProps> = (props) => {
     } else {
       form.resetFields()
     }
-  })
+  }, [])
 
   return (
     <Modal

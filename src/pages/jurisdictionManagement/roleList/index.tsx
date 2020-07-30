@@ -15,22 +15,29 @@ const { confirm } = Modal
 // }
 
 const RoleList: React.FC<{}> = () => {
-  const [RoleData, setRoleData] = useState([])
-  const [Visible, setVisible] = useState(false)
-  const [alterAdd, setAlterAdd] = useState(false)
-  const [amendData, setamendData] = useState({})
-  const [showAllocation, setShowAllocation] = useState(false)
-  const [AllocationJurisdiction, setAllocationJurisdiction] = useState([])
+  const [RoleData, setRoleData] = useState([]) // 列表数据
+  const [Visible, setVisible] = useState(false) // 添加修改对话框显示
+  const [alterAdd, setAlterAdd] = useState(false) // 传递判断是修改还是添加
+  const [amendData, setamendData] = useState({}) // 添加对话框，分配权限对话框。传递当行的数据
+  const [showAllocation, setShowAllocation] = useState(false) // 分配权限对话框
+  const [AllocationJurisdiction, setAllocationJurisdiction] = useState([]) // 查询的全部权限
+  const [jurisdictionList, setJurisdictionList] = useState<any>([]) // 分配权限的对话框 现有权限数据
 
-  // 循环递归给每个数据添加key值
-  const recursion = (datas: any) => {
-    datas.forEach((item: any, index: number) => {
+  const aJurisdictionList: any[] = []
+
+  // 循环递归给每个数据添加key值   参数二false时 是判断分配权限的
+  const recursion = (datas: any, jurisdiction: boolean) => {
+    datas.map((item: any, index: number) => {
+      if (jurisdiction) {
+        aJurisdictionList.push(item.id)
+        setJurisdictionList(aJurisdictionList)
+      }
       const Obj = item
       Obj.key = item.id
       Obj.key2 = index + 1
       Obj.title = item.authName
       if (item.children) {
-        recursion(item.children)
+        recursion(item.children, jurisdiction)
       }
       return Obj
     })
@@ -40,7 +47,7 @@ const RoleList: React.FC<{}> = () => {
   const getRoleListData = async () => {
     const res = await getroleList()
     if (res.meta.status === 200) {
-      recursion(res.data)
+      recursion(res.data, false)
       setRoleData(res.data)
     }
   }
@@ -117,15 +124,16 @@ const RoleList: React.FC<{}> = () => {
   }
 
   // 显示分配权限对话框
-  const showAllocationJurisdiction = async () => {
+  const showAllocationJurisdiction = async (datas: any) => {
     setShowAllocation(true)
+    recursion(datas.children, true)
     const { data, meta } = await getAllJurisdiction()
     if (meta.status !== 200) {
       return message.error(meta.msg)
     }
-    recursion(data)
-    console.log(data)
+    recursion(data, false)
     setAllocationJurisdiction(data)
+    return true
   }
 
   useEffect(() => {
@@ -190,7 +198,7 @@ const RoleList: React.FC<{}> = () => {
                 Delete
               </Button>
             </Popconfirm>
-            <Button type="link" icon={<SettingOutlined style={{ fontSize: '13px' }} />} size="small" onClick={showAllocationJurisdiction}>
+            <Button type="link" icon={<SettingOutlined style={{ fontSize: '13px' }} />} size="small" onClick={() => showAllocationJurisdiction(data)}>
               分配权限
             </Button>
           </div>
@@ -216,7 +224,12 @@ const RoleList: React.FC<{}> = () => {
           }}
         />
         <AddRoleFrom modalVisible={Visible} onCancel={onCancel} alterAdd={alterAdd} amendData={amendData} addRoleLists={addRoleList} />
-        <Allocation modalVisible={showAllocation} onCancel={onCancel} AllocationJurisdiction={AllocationJurisdiction} />
+        <Allocation
+          modalVisible={showAllocation}
+          onCancel={onCancel}
+          AllocationJurisdiction={AllocationJurisdiction}
+          jurisdictionLists={jurisdictionList}
+        />
       </Card>
     </PageHeaderWrapper>
   )
