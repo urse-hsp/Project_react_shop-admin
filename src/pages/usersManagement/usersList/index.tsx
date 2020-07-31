@@ -3,18 +3,25 @@ import { PageHeaderWrapper } from '@ant-design/pro-layout'
 import { Input, Button, Row, Col, Tooltip, Switch, message, Popconfirm } from 'antd'
 import ProTable, { ActionType } from '@ant-design/pro-table'
 import { PlusOutlined, DeleteOutlined, SettingOutlined, EditOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import { queryTableData, changeTypes, deleteUsers, addUsers, changeUsers } from './service'
-import { TableListItem } from './data.d'
+import { queryTableData, changeTypes, deleteUsers, addUsers, changeUsers, getRoles, allocationRole } from './service'
+import AllocationRole from './components/Role'
 import CreateForm from './components/CreateForm'
+import { TableListItem } from './data.d'
+
 import styles from './index.less'
 
 const { Search } = Input
 
 const UsersList: React.FC<TableListItem> = () => {
-  const [Query, setquery] = useState('')
-  const [addUserShow, setaddUserShow] = useState(false)
-  const [judge, setjudge] = useState(false)
-  const [amendUser, setamendUser] = useState('')
+  const [Query, setquery] = useState('') // 按需搜索的条件
+  const [addUserShow, setaddUserShow] = useState(false) // 显示添加用户，修改用户对话框
+  const [judge, setjudge] = useState(false) // 传递子组件，双方判断是 修改还是添加，显示对话框
+  const [amendUser, setamendUser] = useState('') // 用户的数据
+
+  const [showRole, setshowRole] = useState(false) // 用户的数据
+  const [RoleData, setRoleData] = useState(false) // 用户的数据
+  const [RoleDataList, setRoleDataList] = useState([]) // 角色列表数据
+
   const ref = useRef<ActionType>()
 
   // 修改用户状态
@@ -48,6 +55,7 @@ const UsersList: React.FC<TableListItem> = () => {
   // 对话框，取消回调
   const onCancel = () => {
     setaddUserShow(false)
+    setshowRole(false)
   }
 
   // 修改用户信息 显示添加对话框
@@ -75,6 +83,26 @@ const UsersList: React.FC<TableListItem> = () => {
 
     ref.current.reload()
     setaddUserShow(false)
+  }
+
+  // 分配角色对话框
+  const showRoleBox = async (Data: any) => {
+    const { data, meta } = await getRoles()
+    if (meta.status === 200) {
+      setRoleDataList(data)
+    }
+    setRoleData(Data)
+    setshowRole(true)
+  }
+
+  const allocationUserRole = async (id: number, Role: any) => {
+    const { meta } = await allocationRole({ id, Role })
+    if (meta.status !== 200) {
+      return message.error(meta.msg)
+    }
+    message.success('分配角色成功')
+    setshowRole(false)
+    return ref.current.reload()
   }
 
   const title = (
@@ -144,7 +172,7 @@ const UsersList: React.FC<TableListItem> = () => {
               </Button>
             </Popconfirm>
             <Tooltip placement="top" title="分配角色">
-              <Button type="primary">
+              <Button type="primary" onClick={() => showRoleBox(record)}>
                 <SettingOutlined style={{ fontSize: '13px' }} />
               </Button>
             </Tooltip>
@@ -200,12 +228,13 @@ const UsersList: React.FC<TableListItem> = () => {
           return result
         }}
       />
-      <CreateForm
-        modalVisible={addUserShow}
+      <CreateForm modalVisible={addUserShow} onCancel={onCancel} judge={judge} createUsers={createUsers} amendUser={amendUser} />
+      <AllocationRole
+        modalVisible={showRole}
         onCancel={onCancel}
-        judge={judge}
-        createUsers={createUsers}
-        amendUser={amendUser}
+        roleData={RoleData}
+        RoleDataList={RoleDataList}
+        allocationUserRole={allocationUserRole}
       />
       {/* </Card> */}
     </PageHeaderWrapper>

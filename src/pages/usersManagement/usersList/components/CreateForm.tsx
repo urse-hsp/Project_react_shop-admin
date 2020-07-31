@@ -6,9 +6,8 @@ interface CreateFormProps {
   modalVisible: boolean
   onCancel: () => void
   judge: boolean
-  createUsers: () => void
+  createUsers: any
   amendUser: any
-  values: any
 }
 const layout = {
   labelCol: { span: 4 },
@@ -71,13 +70,7 @@ const CreateForm: React.FC<CreateFormProps> = (props) => {
   })
 
   return (
-    <Modal
-      destroyOnClose
-      title={judge ? '修改用户' : '添加用户'}
-      visible={modalVisible}
-      onCancel={() => onCancel()}
-      footer={null}
-    >
+    <Modal destroyOnClose title={judge ? '修改用户' : '添加用户'} visible={modalVisible} onCancel={() => onCancel()} footer={null}>
       <Form
         {...layout}
         name="basic"

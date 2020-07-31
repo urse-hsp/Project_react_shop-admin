@@ -5,7 +5,7 @@ import { Card } from 'antd'
 const GoodsClassify: React.FC<{}> = () => {
   return (
     <PageHeaderWrapper>
-      <Card bordered={false}>商品参数</Card>
+      <Card bordered={false}>商品分类</Card>
     </PageHeaderWrapper>
   )
 }

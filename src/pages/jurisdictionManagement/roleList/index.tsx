@@ -35,6 +35,7 @@ const RoleList: React.FC<{}> = () => {
       }
       const Obj = item
       Obj.key = item.id
+      Obj.key = item.id
       Obj.key2 = index + 1
       Obj.title = item.authName
       if (item.children) {
