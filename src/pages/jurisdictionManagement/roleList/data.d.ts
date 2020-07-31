@@ -1,3 +1,5 @@
+import { number, any } from 'prop-types'
+
 export interface Member {
   avatar: string
   name: string
@@ -43,4 +45,9 @@ export interface DeleteParamsType {
 export interface AmendParamsType {
   param: object
   id: number
+}
+
+export interface SetRolejurisdiction {
+  setRoleId: number
+  jurisdictionId: any
 }

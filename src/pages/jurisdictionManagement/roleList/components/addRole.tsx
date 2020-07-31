@@ -38,11 +38,12 @@ const addRole: React.FC<CreateFormProps> = (props) => {
     } else {
       form.resetFields()
     }
-  }, [])
+  })
 
   return (
     <Modal
       destroyOnClose
+      // getContainer={false}
       title={!alterAdd ? '添加角色' : '修改角色'}
       visible={modalVisible}
       onCancel={() => onCancel()}

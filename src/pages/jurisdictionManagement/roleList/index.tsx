@@ -4,7 +4,7 @@ import { Card, Table, Tag, Divider, Row, Col, Button, Popconfirm, message, Modal
 import { EditOutlined, DeleteOutlined, SettingOutlined, CaretRightOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import AddRoleFrom from './components/addRole'
 import Allocation from './components/allocation'
-import { getroleList, deleteRoleList, deleteRoleJurisdiction, AddRoleList, amendRoleList, getAllJurisdiction } from './service'
+import { getroleList, deleteRoleList, deleteRoleJurisdiction, AddRoleList, amendRoleList, getAllJurisdiction, setRolejurisdiction } from './service'
 import styles from './style.less'
 
 const { confirm } = Modal
@@ -22,6 +22,7 @@ const RoleList: React.FC<{}> = () => {
   const [showAllocation, setShowAllocation] = useState(false) // 分配权限对话框
   const [AllocationJurisdiction, setAllocationJurisdiction] = useState([]) // 查询的全部权限
   const [jurisdictionList, setJurisdictionList] = useState<any>([]) // 分配权限的对话框 现有权限数据
+  const [setRoleId, setSetRoleId] = useState<number>() // 分配权限的对话框 现有权限数据
 
   const aJurisdictionList: any[] = []
 
@@ -72,9 +73,7 @@ const RoleList: React.FC<{}> = () => {
         getRoleListData()
         return true
       },
-      onCancel() {
-        // console.log('Cancel')
-      },
+      onCancel() {},
     })
   }
 
@@ -82,13 +81,16 @@ const RoleList: React.FC<{}> = () => {
   const onCancel = () => {
     setVisible(false)
     setShowAllocation(false)
+    setJurisdictionList([])
   }
 
   // 点击添加角色，显示对话框
   const addRole = (boole: boolean, data: any) => {
     setVisible(true)
     setAlterAdd(boole)
-    setamendData(data)
+    if (boole) {
+      setamendData(data)
+    }
   }
 
   // 删除角色
@@ -125,6 +127,7 @@ const RoleList: React.FC<{}> = () => {
 
   // 显示分配权限对话框
   const showAllocationJurisdiction = async (datas: any) => {
+    setSetRoleId(datas.id)
     setShowAllocation(true)
     recursion(datas.children, true)
     const { data, meta } = await getAllJurisdiction()
@@ -133,6 +136,18 @@ const RoleList: React.FC<{}> = () => {
     }
     recursion(data, false)
     setAllocationJurisdiction(data)
+    return true
+  }
+
+  // 设置角色权限
+  const setRole = async (jurisdictionId: any) => {
+    const { meta } = await setRolejurisdiction({ setRoleId, jurisdictionId })
+    if (meta.status !== 200) {
+      return message.error(meta.msg)
+    }
+    message.success('授权成功')
+    setShowAllocation(false)
+    getRoleListData()
     return true
   }
 
@@ -229,6 +244,7 @@ const RoleList: React.FC<{}> = () => {
           onCancel={onCancel}
           AllocationJurisdiction={AllocationJurisdiction}
           jurisdictionLists={jurisdictionList}
+          setRole={setRole}
         />
       </Card>
     </PageHeaderWrapper>

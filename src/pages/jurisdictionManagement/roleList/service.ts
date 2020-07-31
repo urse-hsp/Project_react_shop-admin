@@ -1,6 +1,6 @@
 import request from 'umi-request'
 import { BASE_URL } from '@/utils/tool'
-import { ParamsType, DeleteParamsType, AmendParamsType } from './data'
+import { ParamsType, DeleteParamsType, AmendParamsType, SetRolejurisdiction } from './data'
 
 // 获取数据
 export async function getroleList() {
@@ -39,5 +39,13 @@ export async function deleteRoleJurisdiction(params: DeleteParamsType) {
 export async function getAllJurisdiction() {
   return request(`${BASE_URL}rights/tree`, {
     method: 'get',
+  })
+}
+
+// 获取所有权限
+export async function setRolejurisdiction(params: SetRolejurisdiction) {
+  return request(`${BASE_URL}roles/${params.setRoleId}/rights`, {
+    method: 'post',
+    data: { rids: params.jurisdictionId },
   })
 }
