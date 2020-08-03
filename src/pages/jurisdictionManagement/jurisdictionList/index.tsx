@@ -83,8 +83,10 @@ class JurisdictionList extends Component<TableListItem> {
             pagination={{
               pageSize: this.state.pageSize,
               pageSizeOptions: ['5', '10', '16', '20'],
-              onShowSizeChange: this.onShowSizeChange,
               showSizeChanger: true,
+              // total: dataList.length,
+              onShowSizeChange: this.onShowSizeChange,
+              showQuickJumper: true,
             }}
           />
         </Card>

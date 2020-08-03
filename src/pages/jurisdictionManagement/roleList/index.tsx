@@ -2,17 +2,12 @@ import React, { useState, useEffect } from 'react'
 import { PageHeaderWrapper } from '@ant-design/pro-layout'
 import { Card, Table, Tag, Divider, Row, Col, Button, Popconfirm, message, Modal } from 'antd'
 import { EditOutlined, DeleteOutlined, SettingOutlined, CaretRightOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import AddRoleFrom from './components/addRole'
-import Allocation from './components/allocation'
+import AddRoleFrom from './components/addRole/index'
+import Allocation from './components/allocation/index'
 import { getroleList, deleteRoleList, deleteRoleJurisdiction, AddRoleList, amendRoleList, getAllJurisdiction, setRolejurisdiction } from './service'
 import styles from './style.less'
 
 const { confirm } = Modal
-
-// interface Member {
-//   // RoleData: any
-//   id: any
-// }
 
 const RoleList: React.FC<{}> = () => {
   const [RoleData, setRoleData] = useState([]) // 列表数据

@@ -38,9 +38,23 @@ const routes = [
     icon: 'shopping',
     routes: [
       {
-        name: 'goodsList',
         path: '/goodsManagement/goodsList',
+        name: 'goodsList',
         component: './goodsManagement/goodsList',
+        routes: [
+          {
+            path: '/goodsManagement/goodsList',
+            redirect: '/goodsManagement/goodsList/List',
+          },
+          {
+            path: '/goodsManagement/goodsList/List',
+            component: './goodsManagement/goodsList/List',
+          },
+          {
+            path: '/goodsManagement/goodsList/addGoods',
+            component: './goodsManagement/goodsList/addGoods',
+          },
+        ],
       },
       {
         name: 'classifyList',

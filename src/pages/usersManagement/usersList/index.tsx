@@ -202,6 +202,7 @@ const UsersList: React.FC<TableListItem> = () => {
         pagination={{
           defaultPageSize: 2,
           pageSizeOptions: ['2', '5', '8', '12'],
+          showQuickJumper: true,
         }}
         request={async (params) => {
           const queryInfo = {
