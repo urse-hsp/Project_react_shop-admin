@@ -34,6 +34,7 @@ const UserLayout: React.FC<UserLayoutProps> = (props) => {
     breadcrumb,
     ...props,
   })
+
   useEffect(() => {
     // 初始布局获取管理员数据
     const adminData = localStorage.getItem('adminData')
@@ -43,6 +44,7 @@ const UserLayout: React.FC<UserLayoutProps> = (props) => {
       history.replace('/')
     }
   })
+  
   return (
     <HelmetProvider>
       <Helmet>

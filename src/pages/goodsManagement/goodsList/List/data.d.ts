@@ -13,3 +13,17 @@ export interface TableListItem {
   progress: number
   num: number
 }
+
+export interface LoginParamsType {
+  query: string
+  pagenum: string
+  pagesize: string
+  id: number
+  mg_state: boolean
+  data: any
+  goods_id: number
+}
+
+export interface GetGoodsProps {
+  id: number
+}

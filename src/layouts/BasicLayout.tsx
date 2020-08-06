@@ -104,11 +104,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
     // 初始布局获取管理员数据
     const adminData = localStorage.getItem('adminData')
     const adminData2 = sessionStorage.getItem('adminData')
-
-    if (adminData === null && adminData2 === null) {
-      history.push('/user/login')
-      // message.warning('请先登录!')
-    }
+    if (adminData === null && adminData2 === null) history.push('/user/login')
 
     if (dispatch) {
       dispatch({

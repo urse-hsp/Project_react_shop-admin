@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { Card, Alert, Steps, Tabs, Form, Input, InputNumber, Cascader, Checkbox, Upload, message, Button } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
+import { BASE_URL, Token } from '@/utils/tool'
 import { getGoodsClassifyList, getGoodsClassifyparameter } from './service'
+
 import styles from './styles.less'
 
 const { Step } = Steps
@@ -20,22 +22,32 @@ const addGoodsRules = {
   goods_cat: [{ required: true, message: '请选择分类' }],
 }
 
-const props = {
+const token = Token()
+const UploadProps = {
   name: 'file',
-  action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
+  action: `${BASE_URL}upload`,
   headers: {
-    authorization: 'authorization-text',
+    authorization: token,
   },
 }
 
-const AddGoods: React.FC<{}> = () => {
+interface AddGoodsProps {
+  location: any
+}
+
+const AddGoods: React.FC<AddGoodsProps> = (props) => {
+  const { location } = props
   const [form] = Form.useForm()
   const [current, setCurrent] = useState(0) // 标签页和时间轴 的选中
   const [classifyDataList, setclassifyDataList] = useState([]) // 商品分类
-  const [actionGoodscat, setActionGoodscat] = useState([]) // 商品分类的默认选中
+  const [actionGoodscat, setactionGoodscat] = useState(location.state.GoodsData.goods_cat) // 商品分类的默认选中
   const [manyData, setmanyData] = useState([]) // many的参数
   const [onlyData, setonlyData] = useState([]) // only的参数
 
+  const [addAmend, setAddAmend] = useState(false) // 获取修改页面传递的值，判断是添加还是修改
+  const [goodsData, setGoodsData] = useState({}) // 修改页面的商品数据
+
+  // 点击tab标签页拦截等操作
   function callback(key: any) {
     form
       .validateFields()
@@ -46,7 +58,7 @@ const AddGoods: React.FC<{}> = () => {
           if (meta.status !== 200) return message.error(meta.msg)
           data.forEach((item: any) => {
             const Obj = item
-            Obj.attrs = Obj.attr_vals.split(' ')
+            Obj.attrs = Obj.attr_vals.split(',')
           })
           setmanyData(data)
         } else if (key === '2') {
@@ -62,6 +74,7 @@ const AddGoods: React.FC<{}> = () => {
       })
   }
 
+  // 获取商品分类参数
   const getDataList = async () => {
     const { data, meta } = await getGoodsClassifyList()
     if (meta.status !== 200) {
@@ -71,6 +84,7 @@ const AddGoods: React.FC<{}> = () => {
     return true
   }
 
+  // 商品分类选择操作
   const onChange = (value: any) => {
     if (value.length < 3) {
       form.setFieldsValue({ goods_cat: '' })
@@ -78,12 +92,16 @@ const AddGoods: React.FC<{}> = () => {
   }
 
   useEffect(() => {
+    if (location.state) {
+      console.log(location.state.data)
+      setAddAmend(true)
+    }
     getDataList()
   }, [])
 
   return (
     <Card>
-      <Alert message="添加商品信息" type="warning" showIcon />
+      <Alert message={addAmend ? '修改商品信息' : '添加商品信息'} type={addAmend ? 'warning' : 'success'} showIcon />
       <Steps current={current} size="small" type="default" className={styles.Steps}>
         <Step title="基本信息" />
         <Step title="商品参数" />
@@ -111,6 +129,7 @@ const AddGoods: React.FC<{}> = () => {
               <Cascader
                 options={classifyDataList}
                 onChange={onChange}
+                disabled={addAmend}
                 size="large"
                 expandTrigger="hover"
                 style={{ width: '220px' }}
@@ -143,11 +162,11 @@ const AddGoods: React.FC<{}> = () => {
               })}
           </TabPane>
           <TabPane tab="商品图片" key="3">
-            <Upload {...props}>
+            <Upload {...UploadProps}>
               <Button>
                 <UploadOutlined /> 上传图片
               </Button>
-              只能上传jpg/png文件，且不超过500kb
+              &nbsp;只能上传jpg/png文件，且不超过500kb
             </Upload>
           </TabPane>
           <TabPane tab="商品内容" key="4">

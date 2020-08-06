@@ -3,7 +3,7 @@ import { Input, Button, Row, Col, message, Popconfirm } from 'antd'
 import ProTable, { ActionType } from '@ant-design/pro-table'
 import { DeleteOutlined, EditOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { history } from 'umi'
-import { queryTableData, deleteUsers } from './service'
+import { queryTableData, deleteUsers, getGoods } from './service'
 import { TableListItem } from './data.d'
 import styles from './index.less'
 
@@ -28,6 +28,18 @@ const GoodsList: React.FC<TableListItem> = () => {
     message.success(meta.msg)
     ref.current.reload()
     return null
+  }
+
+  // 点击修改去修改页面 获取当前商品数据传递过去
+  const goModification = async (id: number) => {
+    const { data, meta } = await getGoods({ id })
+    if (meta.status !== 200) return message.error(meta.msg)
+    const Goodscat = data.goods_cat.split(',')
+    const action = Goodscat.map(Number)
+    data.goods_cat = action
+    console.log(data)
+    history.push('/goodsManagement/goodsList/addGoods', { GoodsData: data })
+    return true
   }
 
   const title = (
@@ -69,10 +81,12 @@ const GoodsList: React.FC<TableListItem> = () => {
     {
       title: '操作',
       width: 140,
+      dataIndex: 'goods_id',
+      key: 'goods_id',
       render: (_: any, record: any) => {
         return (
           <div className={styles.buttonWrap}>
-            <Button type="primary">
+            <Button type="primary" onClick={() => goModification(_)}>
               <EditOutlined style={{ fontSize: '13px' }} />
             </Button>
             <Popconfirm

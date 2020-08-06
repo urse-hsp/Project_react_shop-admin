@@ -1,3 +1,4 @@
-export interface TableListItem {
-
+export interface GetGoodsClassifyparameterProps {
+  id: number
+  sel: any
 }
