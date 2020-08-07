@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { Card, Alert, Steps, Tabs, Form, Input, InputNumber, Cascader, Checkbox, Upload, message, Button } from 'antd'
+import { Card, Alert, Steps, Tabs, Form, Input, InputNumber, Cascader, Checkbox, Upload, message, Button, Divider } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
+import E from 'wangeditor'
 import { BASE_URL, Token } from '@/utils/tool'
 import { getGoodsClassifyList, getGoodsClassifyparameter } from './service'
 
@@ -8,6 +9,7 @@ import styles from './styles.less'
 
 const { Step } = Steps
 const { TabPane } = Tabs
+const CheckboxGroup = Checkbox.Group
 
 const layout = {
   labelCol: { span: 24 },
@@ -22,30 +24,52 @@ const addGoodsRules = {
   goods_cat: [{ required: true, message: '请选择分类' }],
 }
 
-const token = Token()
-const UploadProps = {
-  name: 'file',
-  action: `${BASE_URL}upload`,
-  headers: {
-    authorization: token,
-  },
+interface AddGoodsProps {
+  location: {
+    state: any
+  }
 }
 
-interface AddGoodsProps {
-  location: any
+interface UploadProps {
+  name: string
+  listType: any
+  className: string
+  defaultFileList: any[]
+  action: string
+  headers: {
+    authorization: any
+  }
 }
 
 const AddGoods: React.FC<AddGoodsProps> = (props) => {
-  const { location } = props
+  const {
+    location: { state },
+  } = props
   const [form] = Form.useForm()
   const [current, setCurrent] = useState(0) // 标签页和时间轴 的选中
   const [classifyDataList, setclassifyDataList] = useState([]) // 商品分类
-  const [actionGoodscat, setactionGoodscat] = useState(location.state.GoodsData.goods_cat) // 商品分类的默认选中
+  const [actionGoodscat, setactionGoodscat] = useState([]) // 商品分类的默认选中
   const [manyData, setmanyData] = useState([]) // many的参数
   const [onlyData, setonlyData] = useState([]) // only的参数
 
   const [addAmend, setAddAmend] = useState(false) // 获取修改页面传递的值，判断是添加还是修改
-  const [goodsData, setGoodsData] = useState({}) // 修改页面的商品数据
+  const [parameter, setParameter] = useState({}) // 商品参数属性列表
+
+  const [editorContent, setEditorContent] = useState({}) // 修改页面的商品数据
+  const [goodsImg, setGoodsImg] = useState([]) // 商品图片数据
+
+  // 富文本编辑器
+  const initEditor = () => {
+    const editor = new E('#div1', '#div2')
+    // 使用 onchange 函数监听内容的变化，并实时更新到 state 中
+    editor.customConfig.onchange = (html: any) => {
+      // setEditorContent(editor.txt.html())
+      setEditorContent(html)
+    }
+    editor.customConfig.uploadImgShowBase64 = true
+    editor.create()
+    editor.txt.html(editorContent)
+  }
 
   // 点击tab标签页拦截等操作
   function callback(key: any) {
@@ -60,13 +84,15 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
             const Obj = item
             Obj.attrs = Obj.attr_vals.split(',')
           })
+          console.log(data)
+
           setmanyData(data)
         } else if (key === '2') {
           const { data, meta } = await getGoodsClassifyparameter({ id: values.goods_cat[2], sel: 'only' })
           console.log(data)
           if (meta.status !== 200) return message.error(meta.msg)
           setonlyData(data)
-        }
+        } else if (key === '4') initEditor()
         return true
       })
       .catch(() => {
@@ -74,7 +100,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
       })
   }
 
-  // 获取商品分类参数
+  // 添加页面获取商品分类参数
   const getDataList = async () => {
     const { data, meta } = await getGoodsClassifyList()
     if (meta.status !== 200) {
@@ -92,12 +118,103 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
   }
 
   useEffect(() => {
-    if (location.state) {
-      console.log(location.state.data)
+    console.log('加载----')
+    if (state) {
       setAddAmend(true)
+      // 修改页面渲染数据
+      const Data = state.GoodsData
+      form.setFieldsValue({
+        goods_name: Data.goods_name,
+        goods_price: Data.goods_price,
+        goods_weight: Data.goods_weight,
+        goods_number: Data.goods_number,
+        goods_cat: Data.goods_cat,
+      })
+
+      // 处理图片数据
+      Data.pics.map((item: any) => {
+        const Obj = item
+        Obj.uid = item.pics_id
+        Obj.url = item.pics_big_url
+        return Obj
+      })
+
+      // 商品参数处理
+      Data.attrs.map((item: any) => {
+        const Obj = item
+        if (Obj.attr_sel === 'many') {
+          Obj.parameter = Obj.attr_value.split(',')
+        }
+        return Obj
+      })
+      setParameter(Data.attrs)
+      console.log(Data)
+      setGoodsImg(state.GoodsData.pics)
+      setactionGoodscat(state.GoodsData.goods_cat)
+      setEditorContent(state.GoodsData.goods_introduce)
     }
     getDataList()
   }, [])
+
+  const Uploads: UploadProps = {
+    name: 'file',
+    listType: 'picture',
+    className: 'upload-list-inline',
+    defaultFileList: [...goodsImg],
+    action: `${BASE_URL}upload`,
+    headers: {
+      authorization: Token(),
+    },
+  }
+  const onChanges = (checkedList: any, attr_names: any) => {
+    const action = parameter.map((item: any) => {
+      const Obj = item
+      if (Obj.attr_name === attr_names && Obj.attr_sel === 'many') {
+        Obj.parameter = checkedList
+      }
+      return Obj
+    })
+    setParameter(action)
+  }
+
+  const argument = () => {
+    return (
+      manyData && manyData.map((item: any) => {
+        let values = item.attrs
+        let name = ''
+        return (
+          <Form.Item label={item.attr_name} key={item.attr_id}>
+            {addAmend && parameter.forEach((items: any) => {
+                if (items.attr_name === item.attr_name && items.attr_sel === 'many') {
+                  values = items.parameter
+                  name = item.attr_name
+                }
+              })}
+            <CheckboxGroup options={item.attrs} value={values} onChange={(checkedList) => onChanges(checkedList, name)} />
+          </Form.Item>
+        )
+      })
+    )
+  }
+
+  const attribute = () => {
+    return (
+      onlyData &&
+      onlyData.map((item: any) => {
+        let values = item.attr_vals
+        return (
+          <Form.Item label={item.attr_name} key={item.attr_id}>
+            {addAmend && parameter.forEach((items: any) => {
+                if (items.attr_name === item.attr_name && items.attr_sel === 'only') {
+                  values = items.attr_value
+                }
+              })}
+            <Input size="large" value={values} />
+          </Form.Item>
+        )
+      })
+    )
+  }
 
   return (
     <Card>
@@ -139,38 +256,28 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
             </Form.Item>
           </TabPane>
           <TabPane tab="商品参数" key="1">
-            {manyData &&
-              manyData.map((item: any) => {
-                return (
-                  <Form.Item label={item.attr_name} key={item.attr_id}>
-                    {item.attrs &&
-                      item.attrs.map((items: any) => {
-                        return <Checkbox key={items}>{items}</Checkbox>
-                      })}
-                  </Form.Item>
-                )
-              })}
+            {argument()}
           </TabPane>
           <TabPane tab="商品属性" key="2">
-            {onlyData &&
-              onlyData.map((item: any) => {
-                return (
-                  <Form.Item label={item.attr_name} key={item.attr_id}>
-                    <Input size="large" value={item.attr_vals} />
-                  </Form.Item>
-                )
-              })}
+            {attribute()}
           </TabPane>
           <TabPane tab="商品图片" key="3">
-            <Upload {...UploadProps}>
+            <Upload {...Uploads}>
               <Button>
                 <UploadOutlined /> 上传图片
               </Button>
               &nbsp;只能上传jpg/png文件，且不超过500kb
+              <Divider />
             </Upload>
           </TabPane>
           <TabPane tab="商品内容" key="4">
-            Content of Tab Pane 5
+            <div id="div1" className={styles.toolbar} />
+            <div id="div2" className={styles.text} />
+          </TabPane>
+          <TabPane tab="完成" key="5">
+            <Button type="primary" size="large">
+              {addAmend ? '修改商品' : '添加商品'}
+            </Button>
           </TabPane>
         </Tabs>
       </Form>

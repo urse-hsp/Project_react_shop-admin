@@ -55,11 +55,10 @@ const request = extend({
 })
 
 request.interceptors.request.use((url, options) => {
-  const token = Token()
   const headers = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
-    Authorization: token,
+    Authorization: Token(),
   }
   return {
     url,
