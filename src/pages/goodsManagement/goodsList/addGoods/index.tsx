@@ -53,10 +53,13 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
   const [onlyData, setonlyData] = useState([]) // only的参数
 
   const [addAmend, setAddAmend] = useState(false) // 获取修改页面传递的值，判断是添加还是修改
-  const [parameter, setParameter] = useState({}) // 商品参数属性列表
+  const [parameter, setParameter] = useState([]) // 商品参数属性列表
+
+  const [parameterData, setParameterData] = useState({}) // 商品参数属性列表
 
   const [editorContent, setEditorContent] = useState({}) // 修改页面的商品数据
   const [goodsImg, setGoodsImg] = useState([]) // 商品图片数据
+  const [dome, setDome] = useState<any>()
 
   // 富文本编辑器
   const initEditor = () => {
@@ -68,7 +71,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
     }
     editor.customConfig.uploadImgShowBase64 = true
     editor.create()
-    editor.txt.html(editorContent)
+    if (addAmend) editor.txt.html(editorContent)
   }
 
   // 点击tab标签页拦截等操作
@@ -84,12 +87,11 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
             const Obj = item
             Obj.attrs = Obj.attr_vals.split(',')
           })
-          console.log(data)
-
           setmanyData(data)
+          if (!addAmend) setParameter(data)
         } else if (key === '2') {
           const { data, meta } = await getGoodsClassifyparameter({ id: values.goods_cat[2], sel: 'only' })
-          console.log(data)
+          // console.log(data)
           if (meta.status !== 200) return message.error(meta.msg)
           setonlyData(data)
         } else if (key === '4') initEditor()
@@ -120,6 +122,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
   useEffect(() => {
     console.log('加载----')
     if (state) {
+      console.log(1)
       setAddAmend(true)
       // 修改页面渲染数据
       const Data = state.GoodsData
@@ -148,7 +151,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
         return Obj
       })
       setParameter(Data.attrs)
-      console.log(Data)
+      console.log(Data.attrs)
       setGoodsImg(state.GoodsData.pics)
       setactionGoodscat(state.GoodsData.goods_cat)
       setEditorContent(state.GoodsData.goods_introduce)
@@ -156,6 +159,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
     getDataList()
   }, [])
 
+  // 上传图片配置
   const Uploads: UploadProps = {
     name: 'file',
     listType: 'picture',
@@ -166,31 +170,40 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
       authorization: Token(),
     },
   }
-  const onChanges = (checkedList: any, attr_names: any) => {
-    const action = parameter.map((item: any) => {
+
+  // 改变参数，多选框
+  const onChanges = (checkedList: any, index: number, attr_names) => {
+    const manyDataList = parameter
+    manyDataList.map((item) => {
       const Obj = item
-      if (Obj.attr_name === attr_names && Obj.attr_sel === 'many') {
-        Obj.parameter = checkedList
+      if (Obj.attr_name === attr_names) {
+        Obj.attrs = checkedList
       }
       return Obj
     })
-    setParameter(action)
+    console.log(parameter)
   }
 
+  // 多选框，参数
   const argument = () => {
     return (
-      manyData && manyData.map((item: any) => {
+      manyData &&
+      manyData.map((item: any, index) => {
         let values = item.attrs
-        let name = ''
+
         return (
           <Form.Item label={item.attr_name} key={item.attr_id}>
-            {addAmend && parameter.forEach((items: any) => {
+            {parameter &&
+              parameter.forEach((items: any) => {
                 if (items.attr_name === item.attr_name && items.attr_sel === 'many') {
-                  values = items.parameter
-                  name = item.attr_name
+                  if (!addAmend) {
+                    values = items.attrs
+                  } else {
+                    values = items.parameter
+                  }
                 }
               })}
-            <CheckboxGroup options={item.attrs} value={values} onChange={(checkedList) => onChanges(checkedList, name)} />
+            <CheckboxGroup options={item.attrs} onChange={(checkedList) => onChanges(checkedList, index, item.attr_name)} defaultValue={values} />
           </Form.Item>
         )
       })
@@ -204,7 +217,8 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
         let values = item.attr_vals
         return (
           <Form.Item label={item.attr_name} key={item.attr_id}>
-            {addAmend && parameter.forEach((items: any) => {
+            {addAmend &&
+              parameter.forEach((items: any) => {
                 if (items.attr_name === item.attr_name && items.attr_sel === 'only') {
                   values = items.attr_value
                 }
@@ -214,6 +228,10 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
         )
       })
     )
+  }
+
+  const accomplish = () => {
+    console.log(1)
   }
 
   return (
@@ -275,7 +293,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
             <div id="div2" className={styles.text} />
           </TabPane>
           <TabPane tab="完成" key="5">
-            <Button type="primary" size="large">
+            <Button type="primary" size="large" onClick={accomplish}>
               {addAmend ? '修改商品' : '添加商品'}
             </Button>
           </TabPane>
