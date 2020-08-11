@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { Card, Alert, Steps, Tabs, Form, Input, InputNumber, Cascader, Checkbox, Upload, message, Button, Divider } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 import E from 'wangeditor'
+import { history } from 'umi'
 import { BASE_URL, Token } from '@/utils/tool'
-import { getGoodsClassifyList, getGoodsClassifyparameter } from './service'
-
+import { AddGoodsProps, UploadProps } from './data'
+import { getGoodsClassifyList, getGoodsClassifyparameter, addTheGoods } from './service'
 import styles from './styles.less'
 
 const { Step } = Steps
@@ -24,23 +25,6 @@ const addGoodsRules = {
   goods_cat: [{ required: true, message: '请选择分类' }],
 }
 
-interface AddGoodsProps {
-  location: {
-    state: any
-  }
-}
-
-interface UploadProps {
-  name: string
-  listType: any
-  className: string
-  defaultFileList: any[]
-  action: string
-  headers: {
-    authorization: any
-  }
-}
-
 const AddGoods: React.FC<AddGoodsProps> = (props) => {
   const {
     location: { state },
@@ -52,14 +36,11 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
   const [manyData, setmanyData] = useState([]) // many的参数
   const [onlyData, setonlyData] = useState([]) // only的参数
 
-  const [addAmend, setAddAmend] = useState(false) // 获取修改页面传递的值，判断是添加还是修改
-  const [parameter, setParameter] = useState([]) // 商品参数属性列表
+  const [addAmend, setAddAmend] = useState(false) // 获取修改页面传递的值，判断是添加还是修改 true是修改
+  const [parameter, setParameter] = useState<any>([]) // 商品参数属性列表
 
-  const [parameterData, setParameterData] = useState({}) // 商品参数属性列表
-
-  const [editorContent, setEditorContent] = useState({}) // 修改页面的商品数据
-  const [goodsImg, setGoodsImg] = useState([]) // 商品图片数据
-  const [dome, setDome] = useState<any>()
+  const [editorContent, setEditorContent] = useState(null) // 修改页面的商品数据
+  const [goodsImg, setGoodsImg] = useState<any>([]) // 商品图片数据
 
   // 富文本编辑器
   const initEditor = () => {
@@ -70,8 +51,45 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
       setEditorContent(html)
     }
     editor.customConfig.uploadImgShowBase64 = true
+
     editor.create()
-    if (addAmend) editor.txt.html(editorContent)
+    if (addAmend) {
+      editor.$textContainerElem[0].innerHTML = editorContent
+    } else {
+      editor.txt.html(editorContent)
+    }
+    // editor.txt.html(editorContent)
+  }
+
+  // 点击tab 标签1 获取商品参数
+  const gitManyData = async (values: any) => {
+    const { data, meta } = await getGoodsClassifyparameter({ id: values.goods_cat[2], sel: 'many' })
+    if (meta.status !== 200) return message.error(meta.msg)
+    data.forEach((item: any) => {
+      const Obj = item
+      Obj.attrs = Obj.attr_vals.split(',')
+    })
+    setmanyData(data)
+    if (!addAmend) setParameter(data)
+    return true
+  }
+
+  // 点击tab 标签1 获取商品属性
+  const gitOnlyData = async (values: any) => {
+    if (onlyData.length === 0) {
+      const { data, meta } = await getGoodsClassifyparameter({ id: values.goods_cat[2], sel: 'only' })
+      if (meta.status !== 200) return message.error(meta.msg)
+      data.map((item: any) => {
+        const Obj = item
+        Obj.attr_value = Obj.attr_vals
+        return Obj
+      })
+      setonlyData(data)
+      if (!addAmend) {
+        parameter.push(...data)
+      }
+    }
+    return true
   }
 
   // 点击tab标签页拦截等操作
@@ -81,20 +99,26 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
       .then(async (values) => {
         setCurrent(key)
         if (key === '1') {
-          const { data, meta } = await getGoodsClassifyparameter({ id: values.goods_cat[2], sel: 'many' })
-          if (meta.status !== 200) return message.error(meta.msg)
-          data.forEach((item: any) => {
-            const Obj = item
-            Obj.attrs = Obj.attr_vals.split(',')
-          })
-          setmanyData(data)
-          if (!addAmend) setParameter(data)
+          gitManyData(values)
         } else if (key === '2') {
-          const { data, meta } = await getGoodsClassifyparameter({ id: values.goods_cat[2], sel: 'only' })
-          // console.log(data)
-          if (meta.status !== 200) return message.error(meta.msg)
-          setonlyData(data)
-        } else if (key === '4') initEditor()
+          gitOnlyData(values)
+        } else if (key === '4') {
+          initEditor()
+        } else if (key === '5') {
+          if (manyData.length === 0 && !addAmend) {
+            setCurrent(1)
+            gitManyData(values)
+            message.warning('请查看配置参数!')
+          } else if (onlyData.length === 0 && !addAmend) {
+            setCurrent(2)
+            message.warning('请查看配置属性!')
+            gitOnlyData(values)
+          } else if (editorContent === null) {
+            message.warning('内容不能为空!')
+            setCurrent(4)
+            initEditor()
+          }
+        }
         return true
       })
       .catch(() => {
@@ -114,15 +138,11 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
 
   // 商品分类选择操作
   const onChange = (value: any) => {
-    if (value.length < 3) {
-      form.setFieldsValue({ goods_cat: '' })
-    }
+    if (value.length < 3) form.setFieldsValue({ goods_cat: '' })
   }
 
   useEffect(() => {
-    console.log('加载----')
     if (state) {
-      console.log(1)
       setAddAmend(true)
       // 修改页面渲染数据
       const Data = state.GoodsData
@@ -151,13 +171,20 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
         return Obj
       })
       setParameter(Data.attrs)
-      console.log(Data.attrs)
       setGoodsImg(state.GoodsData.pics)
       setactionGoodscat(state.GoodsData.goods_cat)
       setEditorContent(state.GoodsData.goods_introduce)
     }
     getDataList()
   }, [])
+
+  // 上次图片改变时的回调
+  const onChangeImg = (file: any) => {
+    const res = file.file.response
+    if (res) {
+      if (res.meta.status === 200) goodsImg.push({ pic: res.data.tmp_path })
+    }
+  }
 
   // 上传图片配置
   const Uploads: UploadProps = {
@@ -169,19 +196,21 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
     headers: {
       authorization: Token(),
     },
+    onChange: onChangeImg,
   }
 
   // 改变参数，多选框
-  const onChanges = (checkedList: any, index: number, attr_names) => {
+  const onChanges = (checkedList: any, index: number, attr_names: any) => {
     const manyDataList = parameter
-    manyDataList.map((item) => {
+    manyDataList.map((item: any) => {
       const Obj = item
       if (Obj.attr_name === attr_names) {
         Obj.attrs = checkedList
+        Obj.attr_vals = checkedList.join(',')
+        Obj.attr_value = checkedList.join(',')
       }
       return Obj
     })
-    console.log(parameter)
   }
 
   // 多选框，参数
@@ -190,7 +219,6 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
       manyData &&
       manyData.map((item: any, index) => {
         let values = item.attrs
-
         return (
           <Form.Item label={item.attr_name} key={item.attr_id}>
             {parameter &&
@@ -210,6 +238,17 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
     )
   }
 
+  // 属性input改变的时候
+  const onlyChange = (e: any, attr_ids: number) => {
+    parameter.map((item: any) => {
+      const Obj = item
+      if (Obj.attr_id === attr_ids && Obj.attr_sel === 'only') {
+        Obj.attr_value = e.target.value
+      }
+      return Obj
+    })
+  }
+
   const attribute = () => {
     return (
       onlyData &&
@@ -223,15 +262,33 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
                   values = items.attr_value
                 }
               })}
-            <Input size="large" value={values} />
+            <Input size="large" defaultValue={values} onChange={(e) => onlyChange(e, item.attr_id)} />
           </Form.Item>
         )
       })
     )
   }
 
+  // 完成
   const accomplish = () => {
-    console.log(1)
+    form.validateFields().then(async (values) => {
+      const GoodsData = {
+        goods_name: values.goods_name,
+        goods_cat: values.goods_cat.join(','),
+        goods_price: values.goods_price,
+        goods_number: values.goods_number,
+        goods_weight: values.goods_weight,
+        goods_introduce: editorContent,
+        pics: goodsImg,
+        attrs: parameter,
+      }
+      const { meta } = await addTheGoods(GoodsData)
+      if (meta.status !== 201) return message.error(meta.msg)
+
+      message.success(addAmend ? '修改商品成功' : '添加商品成功')
+      history.push('/goodsManagement/goodsList/List')
+      return true
+    })
   }
 
   return (
