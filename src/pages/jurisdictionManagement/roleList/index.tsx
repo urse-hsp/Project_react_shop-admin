@@ -13,7 +13,7 @@ const RoleList: React.FC<{}> = () => {
   const [RoleData, setRoleData] = useState([]) // 列表数据
   const [Visible, setVisible] = useState(false) // 添加修改对话框显示
   const [alterAdd, setAlterAdd] = useState(false) // 传递判断是修改还是添加
-  const [amendData, setamendData] = useState({}) // 添加对话框，分配权限对话框。传递当行的数据
+  const [amendData, setamendData] = useState<any>({}) // 添加对话框，分配权限对话框。传递当行的数据
   const [showAllocation, setShowAllocation] = useState(false) // 分配权限对话框
   const [AllocationJurisdiction, setAllocationJurisdiction] = useState([]) // 查询的全部权限
   const [jurisdictionList, setJurisdictionList] = useState<any>([]) // 分配权限的对话框 现有权限数据

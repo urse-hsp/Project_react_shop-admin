@@ -1,21 +1,14 @@
 import request from 'umi-request'
 import { BASE_URL } from '@/utils/tool'
+import { LoginParamsType, QueryTableDataProps } from './data'
 
-export interface LoginParamsType {
-  query: string
-  pagenum: string
-  pagesize: string
-  id: number
-  mg_state: boolean
-  data: any
-}
 export interface SetAllocationRole {
   id: number
   Role: number
 }
 
 // 请求用户列表
-export async function queryTableData(params: LoginParamsType) {
+export async function queryTableData(params: QueryTableDataProps) {
   return request(`${BASE_URL}users`, {
     method: 'get',
     params,

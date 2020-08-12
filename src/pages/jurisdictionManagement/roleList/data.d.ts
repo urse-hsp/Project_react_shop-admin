@@ -48,6 +48,6 @@ export interface AmendParamsType {
 }
 
 export interface SetRolejurisdiction {
-  setRoleId: number
+  setRoleId: any
   jurisdictionId: any
 }

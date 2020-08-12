@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react'
 import { PageHeaderWrapper } from '@ant-design/pro-layout'
 import { Input, Button, Row, Col, Tooltip, Switch, message, Popconfirm } from 'antd'
-import ProTable, { ActionType } from '@ant-design/pro-table'
+import ProTable from '@ant-design/pro-table'
 import { PlusOutlined, DeleteOutlined, SettingOutlined, EditOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { queryTableData, changeTypes, deleteUsers, addUsers, changeUsers, getRoles, allocationRole } from './service'
 import AllocationRole from './components/Role'
@@ -16,13 +16,13 @@ const UsersList: React.FC<TableListItem> = () => {
   const [Query, setquery] = useState('') // 按需搜索的条件
   const [addUserShow, setaddUserShow] = useState(false) // 显示添加用户，修改用户对话框
   const [judge, setjudge] = useState(false) // 传递子组件，双方判断是 修改还是添加，显示对话框
-  const [amendUser, setamendUser] = useState('') // 用户的数据
+  const [amendUser, setamendUser] = useState<any>('') // 用户的数据
 
   const [showRole, setshowRole] = useState(false) // 用户的数据
   const [RoleData, setRoleData] = useState(false) // 用户的数据
   const [RoleDataList, setRoleDataList] = useState([]) // 角色列表数据
 
-  const ref = useRef<ActionType>()
+  const ref = useRef<any>()
 
   // 修改用户状态
   const changeType = async (record: any) => {

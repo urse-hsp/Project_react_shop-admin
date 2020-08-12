@@ -14,16 +14,26 @@ export interface TableListItem {
   num: number
 }
 
-export interface LoginParamsType {
+export interface QueryTableDataProps {
   query: string
-  pagenum: string
-  pagesize: string
+  pagenum: any
+  pagesize: any
+}
+
+export interface DeleteUsersProps {
   id: number
   mg_state: boolean
   data: any
   goods_id: number
 }
-
 export interface GetGoodsProps {
   id: number
+}
+
+export interface ResultProps {
+  data: any
+  total: any
+  success: boolean
+  pageSize: number | undefined
+  current: number | undefined
 }

@@ -1,9 +1,9 @@
 import request from 'umi-request'
 import { BASE_URL } from '@/utils/tool'
-import { LoginParamsType, GetGoodsProps } from './data'
+import { QueryTableDataProps, DeleteUsersProps, GetGoodsProps } from './data'
 
 // 请求用户列表
-export async function queryTableData(params: LoginParamsType) {
+export async function queryTableData(params: QueryTableDataProps) {
   return request(`${BASE_URL}goods`, {
     method: 'get',
     params,
@@ -11,7 +11,7 @@ export async function queryTableData(params: LoginParamsType) {
 }
 
 // 删除用户
-export async function deleteUsers(params: LoginParamsType) {
+export async function deleteUsers(params: DeleteUsersProps) {
   return request(`${BASE_URL}goods/${params.goods_id}`, {
     method: 'delete',
   })

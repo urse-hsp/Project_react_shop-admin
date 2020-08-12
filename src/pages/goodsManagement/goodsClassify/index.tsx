@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { Button, message, Popconfirm, Tag } from 'antd'
-import ProTable, { ActionType } from '@ant-design/pro-table'
+import ProTable from '@ant-design/pro-table'
 import { PageHeaderWrapper } from '@ant-design/pro-layout'
 import { DeleteOutlined, EditOutlined, QuestionCircleOutlined, CheckCircleOutlined, CloseCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import Classify from './components/classify'
@@ -10,7 +10,7 @@ import { TableListItem, AddClassifyProps, QueryTableDataProps } from './data.d'
 import styles from './index.less'
 
 const GoodsClassify: React.FC<TableListItem> = () => {
-  const ref = useRef<ActionType | undefined>()
+  const ref = useRef<any>()
   const [modalVisible, setModalVisible] = useState(false) // 显示对话框
   const [judge, setJudge] = useState(true) // 判断是添加还是修改
   const [classifyData, setClassifyData] = useState([]) // 判断是添加还是修改

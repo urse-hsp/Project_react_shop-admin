@@ -30,3 +30,8 @@ export interface UploadProps {
   }
   onChange: any
 }
+
+export interface AmendGoodsProps {
+  id: number
+  data: any
+}

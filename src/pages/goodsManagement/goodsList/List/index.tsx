@@ -1,17 +1,18 @@
 import React, { useState, useRef } from 'react'
 import { Input, Button, Row, Col, message, Popconfirm } from 'antd'
-import ProTable, { ActionType } from '@ant-design/pro-table'
+import ProTable from '@ant-design/pro-table'
 import { DeleteOutlined, EditOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { history } from 'umi'
+import { newDate } from '@/utils/tool'
 import { queryTableData, deleteUsers, getGoods } from './service'
-import { TableListItem } from './data.d'
+import { TableListItem, ResultProps } from './data.d'
 import styles from './index.less'
 
 const { Search } = Input
 
 const GoodsList: React.FC<TableListItem> = () => {
   const [Query, setquery] = useState('')
-  const ref = useRef<ActionType>()
+  const ref = useRef<any>()
 
   // 高级搜索
   const advancedSearch = (value: string) => {
@@ -37,7 +38,6 @@ const GoodsList: React.FC<TableListItem> = () => {
     const Goodscat = data.goods_cat.split(',')
     const action = Goodscat.map(Number)
     data.goods_cat = action
-    console.log(data)
     history.push('/goodsManagement/goodsList/addGoods', { GoodsData: data })
     return true
   }
@@ -77,6 +77,7 @@ const GoodsList: React.FC<TableListItem> = () => {
       dataIndex: 'add_time',
       key: 'add_time',
       width: 170,
+      render: (_: any) => newDate(_),
     },
     {
       title: '操作',
@@ -138,7 +139,7 @@ const GoodsList: React.FC<TableListItem> = () => {
           Obj.index = index + 1
           return Obj
         })
-        const result = {
+        const result: ResultProps = {
           data: data.goods,
           total: data.total,
           success: true,

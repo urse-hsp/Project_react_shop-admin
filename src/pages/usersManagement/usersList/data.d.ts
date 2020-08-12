@@ -13,3 +13,14 @@ export interface TableListItem {
   progress: number
   num: number
 }
+
+export interface LoginParamsType {
+  id: number
+  mg_state: boolean
+  data: any
+}
+export interface QueryTableDataProps {
+  query: string
+  pagenum: any
+  pagesize: any
+}

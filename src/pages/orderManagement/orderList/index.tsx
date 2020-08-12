@@ -1,9 +1,10 @@
 import React, { useState, useRef } from 'react'
 import { PageHeaderWrapper } from '@ant-design/pro-layout'
 import { Input, Button, Row, Col, message, Popconfirm } from 'antd'
-import ProTable, { ActionType } from '@ant-design/pro-table'
+import ProTable from '@ant-design/pro-table'
 import { DeleteOutlined, EditOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { queryTableData, deleteUsers } from './service'
+import { newDate } from '@/utils/tool'
 import { TableListItem } from './data.d'
 import styles from './index.less'
 
@@ -14,7 +15,7 @@ const OrderList: React.FC<TableListItem> = () => {
   const [addUserShow, setaddUserShow] = useState(false)
   const [judge, setjudge] = useState(false)
   const [amendUser, setamendUser] = useState('')
-  const ref = useRef<ActionType>()
+  const ref = useRef<any>()
 
   // 高级搜索
   const advancedSearch = (value: string) => {
@@ -70,6 +71,7 @@ const OrderList: React.FC<TableListItem> = () => {
       title: '下单时间',
       dataIndex: 'create_time',
       key: 'create_time',
+      render: (_: any) => newDate(_),
     },
     {
       title: '操作',

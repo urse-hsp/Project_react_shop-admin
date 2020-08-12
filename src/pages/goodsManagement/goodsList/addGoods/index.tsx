@@ -5,7 +5,7 @@ import E from 'wangeditor'
 import { history } from 'umi'
 import { BASE_URL, Token } from '@/utils/tool'
 import { AddGoodsProps, UploadProps } from './data'
-import { getGoodsClassifyList, getGoodsClassifyparameter, addTheGoods } from './service'
+import { getGoodsClassifyList, getGoodsClassifyparameter, addTheGoods, amendGoods } from './service'
 import styles from './styles.less'
 
 const { Step } = Steps
@@ -39,7 +39,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
   const [addAmend, setAddAmend] = useState(false) // 获取修改页面传递的值，判断是添加还是修改 true是修改
   const [parameter, setParameter] = useState<any>([]) // 商品参数属性列表
 
-  const [editorContent, setEditorContent] = useState(null) // 修改页面的商品数据
+  const [editorContent, setEditorContent] = useState('') // 修改页面的商品数据
   const [goodsImg, setGoodsImg] = useState<any>([]) // 商品图片数据
 
   // 富文本编辑器
@@ -53,12 +53,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
     editor.customConfig.uploadImgShowBase64 = true
 
     editor.create()
-    if (addAmend) {
-      editor.$textContainerElem[0].innerHTML = editorContent
-    } else {
-      editor.txt.html(editorContent)
-    }
-    // editor.txt.html(editorContent)
+    editor.txt.html(editorContent)
   }
 
   // 点击tab 标签1 获取商品参数
@@ -68,6 +63,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
     data.forEach((item: any) => {
       const Obj = item
       Obj.attrs = Obj.attr_vals.split(',')
+      Obj.attr_value = Obj.attr_vals
     })
     setmanyData(data)
     if (!addAmend) setParameter(data)
@@ -113,10 +109,6 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
             setCurrent(2)
             message.warning('请查看配置属性!')
             gitOnlyData(values)
-          } else if (editorContent === null) {
-            message.warning('内容不能为空!')
-            setCurrent(4)
-            initEditor()
           }
         }
         return true
@@ -171,6 +163,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
         return Obj
       })
       setParameter(Data.attrs)
+
       setGoodsImg(state.GoodsData.pics)
       setactionGoodscat(state.GoodsData.goods_cat)
       setEditorContent(state.GoodsData.goods_introduce)
@@ -224,10 +217,10 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
             {parameter &&
               parameter.forEach((items: any) => {
                 if (items.attr_name === item.attr_name && items.attr_sel === 'many') {
-                  if (!addAmend) {
-                    values = items.attrs
-                  } else {
+                  if (addAmend) {
                     values = items.parameter
+                  } else {
+                    values = items.attrs
                   }
                 }
               })}
@@ -282,12 +275,19 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
         pics: goodsImg,
         attrs: parameter,
       }
-      const { meta } = await addTheGoods(GoodsData)
-      if (meta.status !== 201) return message.error(meta.msg)
 
-      message.success(addAmend ? '修改商品成功' : '添加商品成功')
+      let res
+      let status
+      if (!addAmend) {
+        res = await addTheGoods(GoodsData)
+        status = 201
+      } else {
+        res = await amendGoods({ id: state.GoodsData.goods_id, data: GoodsData })
+        status = 200
+      }
+      if (res.meta.status !== status) return message.error(res.meta.msg)
       history.push('/goodsManagement/goodsList/List')
-      return true
+      return message.success(addAmend ? '修改商品成功' : '添加商品成功')
     })
   }
 
