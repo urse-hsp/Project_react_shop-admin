@@ -20,7 +20,7 @@ export interface LoginParamsType {
   data: any
 }
 export interface QueryTableDataProps {
-  query: string
+  query: any
   pagenum: any
   pagesize: any
 }

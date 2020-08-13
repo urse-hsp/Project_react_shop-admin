@@ -12,11 +12,13 @@ const { Step } = Steps
 const { TabPane } = Tabs
 const CheckboxGroup = Checkbox.Group
 
+// input 配置
 const layout = {
   labelCol: { span: 24 },
   wrapperCol: { span: 24 },
 }
 
+// input 规则
 const addGoodsRules = {
   goods_name: [{ required: true, message: '请输入名称!' }],
   goods_price: [{ required: true, message: '请输入价格!' }],
@@ -133,6 +135,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
     if (value.length < 3) form.setFieldsValue({ goods_cat: '' })
   }
 
+  // 初始化
   useEffect(() => {
     if (state) {
       setAddAmend(true)
@@ -242,6 +245,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
     })
   }
 
+  // 参数列表 input
   const attribute = () => {
     return (
       onlyData &&
