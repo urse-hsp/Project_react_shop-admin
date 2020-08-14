@@ -1,6 +1,6 @@
 import request from 'umi-request'
 import { BASE_URL } from '@/utils/tool'
-import { GetParameterListProps, SetAttributesProps, RemoveParameterProps } from './data'
+import { GetParameterListProps, SetAttributesProps, RemoveParameterProps, GetAttributesProps, RedactAttributes } from './data'
 
 // 商品分类数据列表
 export async function getClassifyList() {
@@ -33,5 +33,27 @@ export async function setAttributes(params: SetAttributesProps) {
 export async function removeParameter(params: RemoveParameterProps) {
   return request(`${BASE_URL}categories/${params.id}/attributes/${params.attrId}`, {
     method: 'delete',
+  })
+}
+
+// 添加动态参数或者静态属性
+export async function getAttributes(params: GetAttributesProps) {
+  return request(`${BASE_URL}categories/${params.id}/attributes`, {
+    method: 'post',
+    data: {
+      attr_name: params.attr_name,
+      attr_sel: params.attr_sel,
+    },
+  })
+}
+
+// 删除参数
+export async function redactAttributes(params: RedactAttributes) {
+  return request(`${BASE_URL}categories/${params.id}/attributes/${params.attrId}`, {
+    method: 'put',
+    data: {
+      attr_name: params.attr_name,
+      attr_sel: params.attr_sel,
+    },
   })
 }

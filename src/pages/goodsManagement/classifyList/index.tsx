@@ -2,27 +2,24 @@ import React from 'react'
 import { PageHeaderWrapper } from '@ant-design/pro-layout'
 import { Card, Row, Col, Cascader, message, Tabs, Table, Tag, Button, Popconfirm, Modal, Form, Input } from 'antd'
 import { PlusOutlined, EditOutlined, QuestionCircleOutlined, DeleteOutlined } from '@ant-design/icons'
-import { getClassifyList, getParameterList, setAttributes, removeParameter } from './service'
+import { getClassifyList, getParameterList, setAttributes, removeParameter, getAttributes, redactAttributes } from './service'
 import styles from './styles.less'
+import AddFrom from './components/addForm'
 
 const { TabPane } = Tabs
 
-const layout = {
-  labelCol: { span: 4 },
-  wrapperCol: { span: 20 },
-}
-
 class ClassifyList extends React.Component {
+  formRef = React.createRef<any>()
+
   state = {
     ClassIfListData: [], // 商品分类列表数据
-    parameterType: 'many', // 参数类型
+    parameterType: 'many', // 参数类型 many动态参数
     DefaultValue: [], // 选中的数组id
     parameterData: [], // 参数数据列表
-    inputVisible: false, // 参数数据列表
-    inputValue: '', // 参数数据列表
-    attrValues: {}, // 添加参数 属性时候当前列表的数据
     visible: false, // 添加修改参数对话框
-    Boole: true, // 判断是添加，还是修改
+    Boole: true, // 判断是添加，还是修改 true添加
+    AddModification: {},
+    amendAttrData: {},
   }
 
   inputRef = React.createRef<any>()
@@ -39,7 +36,10 @@ class ClassifyList extends React.Component {
         const Obj = item
         Obj.key = item.attr_id
         Obj.index = index + 1
-        // Obj.values = item.attr_vals.split(',')
+        // 控制文本框的显示与隐藏
+        Obj.inputVisible = false
+        // 文本框输入的值
+        Obj.inputValue = ''
         return Obj
       })
       this.setState({
@@ -91,20 +91,52 @@ class ClassifyList extends React.Component {
     }
   }
 
-  // 点击添加参数显示input
-  showInput = (record: any) => {
+  // 更新改变的参数属性数据，更新input写入，添加参数和删除参数
+  setparameter = (record: any, showHide: boolean, focus: boolean) => {
+    const Obj = record
+    Obj.inputVisible = showHide
+    const dataList = this.state.parameterData
+    const parameter = dataList.map((item: any) => {
+      let items = item
+      if (items.attr_id === Obj.attr_id) items = Obj
+      return items
+    })
     this.setState(
       {
-        inputVisible: true,
-        attrValues: record,
+        parameterData: parameter,
       },
-      () => this.inputRef.current.focus(),
+      () => {
+        let fn
+        if (focus) {
+          // input焦点
+          fn = this.inputRef.current.focus()
+        } else {
+          fn = null
+          // 输入字段不为空时 添加参数
+          if (Obj.inputValue !== '') {
+            Obj.attr_vals = `${Obj.attr_vals},${Obj.inputValue}`
+            this.setAttributes(Obj)
+          }
+        }
+        return fn
+      },
     )
   }
 
-  // 添加删除属性
+  // 点击添加参数属性显示input
+  showInput = (record: any) => {
+    this.setparameter(record, true, true)
+  }
+
+  // 添加参数属性，回车或者返回焦点
+  handleInputConfirm = (record: any) => {
+    this.setparameter(record, false, false)
+  }
+
+  // 添加删除参数属性
   setAttributes = async (value: any) => {
     const property = value
+    property.inputValue = ''
     const params = {
       id: this.state.DefaultValue[2],
       attrId: property.attr_id,
@@ -113,40 +145,19 @@ class ClassifyList extends React.Component {
       attr_vals: property.attr_vals,
     }
     const { meta } = await setAttributes(params)
-    if (meta.status !== 200) {
-      return message.error(meta.msg)
-    }
+    if (meta.status !== 200) return message.error(meta.msg)
     message.success(meta.msg)
-    this.setState({
-      inputValue: '',
-    })
     return this.getData()
   }
 
-  // 添加参数，回车或者返回焦点
-  handleInputConfirm = () => {
-    this.setState(
-      {
-        inputVisible: false,
-      },
-      () => {
-        if (this.state.inputValue !== '') {
-          const property: any = this.state.attrValues
-          property.attr_vals = `${property.attr_vals},${this.state.inputValue}`
-          this.setAttributes(property)
-        }
-      },
-    )
-  }
-
   // input 输入更新同步
-  handleInputChange = (e: any) => {
-    this.setState({
-      inputValue: e.target.value,
-    })
+  handleInputChange = (e: any, record: any) => {
+    const Obj = record
+    Obj.inputValue = e.target.value
+    this.setparameter(record, true, true)
   }
 
-  // 删除参数
+  // 删除参数属性
   onCloseTag = (item: any, record: any) => {
     const Data = record
     Data.values = Data.attr_vals.split(',').filter((items: any) => {
@@ -154,14 +165,6 @@ class ClassifyList extends React.Component {
     })
     Data.attr_vals = Data.values.join(',')
     this.setAttributes(Data)
-  }
-
-  // 编辑参数
-  showClassify = (record: any) => {
-    this.setState({
-      visible: true,
-      Boole: false, // 判断是添加，还是修改
-    })
   }
 
   // 删除参数
@@ -174,37 +177,55 @@ class ClassifyList extends React.Component {
     return this.getParameter()
   }
 
-  showModal = () => {
+  // 显示对话框，添加参数与修改参数
+  showModal = (showHide: boolean, record: any) => {
     this.setState({
       visible: true,
-      Boole: true, // 判断是添加，还是修改
+      Boole: showHide, // 判断是添加，还是修改
+      AddModification: record,
     })
+    if (!showHide) this.setState({ amendAttrData: record })
   }
 
-  handleOk = (e: any) => {
-    console.log(e)
+  // 对话框点击确定时
+  handleOk = (form: any) => {
+    form.validateFields().then(async (values: any) => {
+      if (this.state.Boole) {
+        const { meta } = await getAttributes({ id: this.state.DefaultValue[2], attr_name: values.attr_name, attr_sel: this.state.parameterType })
+        if (meta.status !== 201) {
+          return message.error(meta.msg)
+        }
+        message.success('添加成功')
+      } else {
+        const Modifications: any = this.state.AddModification
+        const { meta } = await redactAttributes({
+          id: this.state.DefaultValue[2],
+          attrId: Modifications.attr_id,
+          attr_name: values.attr_name,
+          attr_sel: this.state.parameterType,
+        })
+        if (meta.status !== 200) {
+          return message.error(meta.msg)
+        }
+        message.success('修改成功')
+      }
+      return this.getParameter()
+    })
+
     this.setState({
       visible: false,
     })
   }
 
-  handleCancel = (e: any) => {
-    console.log(e)
+  // 对话框取消时
+  handleCancel = () => {
     this.setState({
       visible: false,
     })
-  }
-
-  onFinish = (values: any) => {
-    console.log('Success:', values)
-  }
-
-  onFinishFailed = (errorInfo: any) => {
-    console.log('Failed:', errorInfo)
   }
 
   render() {
-    const { parameterData, parameterType, visible, inputValue, inputVisible, Boole } = this.state
+    const { parameterData, parameterType, visible, Boole, amendAttrData } = this.state
     const columns = [
       { title: '', dataIndex: 'index', key: 'index', width: 50 },
       { title: '参数名称', dataIndex: 'attr_name', key: 'attr_name' },
@@ -215,7 +236,7 @@ class ClassifyList extends React.Component {
         render: (record: any) => {
           return (
             <div className={styles.buttonWrap}>
-              <Button type="link" icon={<EditOutlined style={{ fontSize: '13px' }} />} size="small" onClick={() => this.showClassify(record)}>
+              <Button type="link" icon={<EditOutlined style={{ fontSize: '13px' }} />} size="small" onClick={() => this.showModal(false, record)}>
                 编辑
               </Button>
               <Popconfirm
@@ -235,12 +256,19 @@ class ClassifyList extends React.Component {
     ]
     const tables = (
       <>
-        <Button type="primary" size="large" className={styles.addBtn} onClick={this.showModal} disabled={parameterData.length === 0 ? true : false}>
-          添加参数
+        <Button
+          type="primary"
+          size="large"
+          className={styles.addBtn}
+          onClick={() => this.showModal(true, null)}
+          disabled={parameterData.length === 0 ? true : false}
+        >
+          {parameterType === 'many' ? '添加参数' : '静态属性'}
         </Button>
         <Table
           bordered
           columns={columns}
+          dataSource={parameterData}
           expandable={{
             expandedRowRender: (record: any) => (
               <p style={{ margin: 0 }}>
@@ -251,19 +279,19 @@ class ClassifyList extends React.Component {
                     </Tag>
                   )
                 })}
-                {inputVisible && (
+                {record.inputVisible && (
                   <Input
                     type="text"
                     size="small"
                     ref={this.inputRef}
                     className={styles.tagInput}
-                    value={inputValue}
-                    onChange={this.handleInputChange}
-                    onBlur={this.handleInputConfirm}
-                    onPressEnter={this.handleInputConfirm}
+                    value={record.inputValue}
+                    onChange={(e) => this.handleInputChange(e, record)}
+                    onBlur={() => this.handleInputConfirm(record)}
+                    onPressEnter={() => this.handleInputConfirm(record)}
                   />
                 )}
-                {!inputVisible && (
+                {!record.inputVisible && (
                   <Tag className={styles.siteTagPlus} onClick={() => this.showInput(record)}>
                     <PlusOutlined /> New Tag
                   </Tag>
@@ -271,7 +299,6 @@ class ClassifyList extends React.Component {
               </p>
             ),
           }}
-          dataSource={parameterData}
         />
       </>
     )
@@ -302,18 +329,14 @@ class ClassifyList extends React.Component {
             123
           </Tabs>
         </Card>
-        <Modal
-          title={`${Boole ? '添加' : '修改'}${parameterType === 'many' ? '动态参数' : '静态属性'}`}
+        <AddFrom
           visible={visible}
-          onOk={this.handleOk}
           onCancel={this.handleCancel}
-        >
-          <Form {...layout} name="basic" initialValues={{ remember: true }} onFinish={this.onFinish} onFinishFailed={this.onFinishFailed}>
-            <Form.Item label="动态参数" name="attr_name" rules={[{ required: true, message: '请输入参数的名称' }]}>
-              <Input />
-            </Form.Item>
-          </Form>
-        </Modal>
+          onOk={this.handleOk}
+          Boole={Boole}
+          parameterType={parameterType}
+          amendAttrData={amendAttrData}
+        />
       </PageHeaderWrapper>
     )
   }
