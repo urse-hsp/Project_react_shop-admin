@@ -26,11 +26,14 @@ const addRole: React.FC<CreateFormProps> = (props) => {
   const addRoleList = () => {
     form.validateFields().then((values) => {
       addRoleLists(values)
+      console.log(values)
     })
   }
 
   useEffect(() => {
+    console.log('aa')
     if (alterAdd) {
+      console.log(1)
       form.setFieldsValue({
         roleName: amendData.roleName,
         roleDesc: amendData.roleDesc,
@@ -43,26 +46,16 @@ const addRole: React.FC<CreateFormProps> = (props) => {
   return (
     <Modal
       destroyOnClose
-      // getContainer={false}
       title={!alterAdd ? '添加角色' : '修改角色'}
       visible={modalVisible}
       onCancel={() => onCancel()}
       okText={!alterAdd ? '添加' : '修改'}
       onOk={addRoleList}
-      // footer={null}
     >
-      <Form
-        form={form}
-        {...layout}
-        name="basic"
-        initialValues={{ remember: true }}
-        // onFinish={onFinish}
-        // onFinishFailed={onFinishFailed}
-      >
+      <Form form={form} {...layout} name="basic" initialValues={{ remember: true }}>
         <Form.Item label="角色名称" name="roleName" rules={addFormRules.roleName}>
           <Input />
         </Form.Item>
-
         <Form.Item label="角色描述" name="roleDesc" rules={addFormRules.roleDesc}>
           <Input />
         </Form.Item>

@@ -1,6 +1,6 @@
 import React from 'react'
 import { PageHeaderWrapper } from '@ant-design/pro-layout'
-import { Card, Row, Col, Cascader, message, Tabs, Table, Tag, Button, Popconfirm, Modal, Form, Input } from 'antd'
+import { Card, Row, Col, Cascader, message, Tabs, Table, Tag, Button, Popconfirm, Input } from 'antd'
 import { PlusOutlined, EditOutlined, QuestionCircleOutlined, DeleteOutlined } from '@ant-design/icons'
 import { getClassifyList, getParameterList, setAttributes, removeParameter, getAttributes, redactAttributes } from './service'
 import styles from './styles.less'
@@ -188,40 +188,29 @@ class ClassifyList extends React.Component {
   }
 
   // 对话框点击确定时
-  handleOk = (form: any) => {
-    form.validateFields().then(async (values: any) => {
-      if (this.state.Boole) {
-        const { meta } = await getAttributes({ id: this.state.DefaultValue[2], attr_name: values.attr_name, attr_sel: this.state.parameterType })
-        if (meta.status !== 201) {
-          return message.error(meta.msg)
-        }
-        message.success('添加成功')
-      } else {
-        const Modifications: any = this.state.AddModification
-        const { meta } = await redactAttributes({
-          id: this.state.DefaultValue[2],
-          attrId: Modifications.attr_id,
-          attr_name: values.attr_name,
-          attr_sel: this.state.parameterType,
-        })
-        if (meta.status !== 200) {
-          return message.error(meta.msg)
-        }
-        message.success('修改成功')
-      }
-      return this.getParameter()
-    })
-
-    this.setState({
-      visible: false,
-    })
+  handleOk = async (values: any) => {
+    if (this.state.Boole) {
+      const { meta } = await getAttributes({ id: this.state.DefaultValue[2], attr_name: values.attr_name, attr_sel: this.state.parameterType })
+      if (meta.status !== 201) return message.error(meta.msg)
+      message.success('添加成功')
+    } else {
+      const Modifications: any = this.state.AddModification
+      const { meta } = await redactAttributes({
+        id: this.state.DefaultValue[2],
+        attrId: Modifications.attr_id,
+        attr_name: values.attr_name,
+        attr_sel: this.state.parameterType,
+      })
+      if (meta.status !== 200) return message.error(meta.msg)
+      message.success('修改成功')
+    }
+    this.setState({ visible: false })
+    return this.getParameter()
   }
 
   // 对话框取消时
   handleCancel = () => {
-    this.setState({
-      visible: false,
-    })
+    this.setState({ visible: false })
   }
 
   render() {
@@ -326,7 +315,6 @@ class ClassifyList extends React.Component {
             <TabPane tab="静态属性" key="2">
               {tables}
             </TabPane>
-            123
           </Tabs>
         </Card>
         <AddFrom
