@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react'
 import { PageHeaderWrapper } from '@ant-design/pro-layout'
-import { Input, Button, Row, Col, message, Popconfirm } from 'antd'
+import { Input, Button, Row, Col, message } from 'antd'
 import ProTable from '@ant-design/pro-table'
-import { DeleteOutlined, EditOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, EnvironmentOutlined } from '@ant-design/icons'
 import { queryTableData, deleteUsers } from './service'
 import { newDate } from '@/utils/tool'
 import { TableListItem } from './data.d'
@@ -23,17 +23,6 @@ const OrderList: React.FC<TableListItem> = () => {
     ref.current.reload()
   }
 
-  // 删除用户
-  const deleteUser = async (record: any) => {
-    const { meta } = await deleteUsers(record)
-    if (meta.status !== 200) {
-      return message.error(meta.msg)
-    }
-    message.success(meta.msg)
-    ref.current.reload()
-    return null
-  }
-
   const title = (
     <Row>
       <Col span={8}>
@@ -45,6 +34,7 @@ const OrderList: React.FC<TableListItem> = () => {
     {
       title: '',
       dataIndex: 'index',
+      key: 'index',
       width: 50,
     },
     {
@@ -76,22 +66,15 @@ const OrderList: React.FC<TableListItem> = () => {
     {
       title: '操作',
       width: 140,
-      render: (_: any, record: any) => {
+      render: (record: any) => {
         return (
           <div className={styles.buttonWrap}>
             <Button type="primary">
               <EditOutlined style={{ fontSize: '13px' }} />
             </Button>
-            <Popconfirm
-              placement="topRight"
-              title="确定要删除该用户吗？"
-              icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-              onConfirm={() => deleteUser(record)}
-            >
-              <Button type="primary" danger>
-                <DeleteOutlined style={{ fontSize: '13px' }} />
-              </Button>
-            </Popconfirm>
+            <Button type="primary">
+              <EnvironmentOutlined style={{ fontSize: '13px' }} />
+            </Button>
           </div>
         )
       },
@@ -113,7 +96,7 @@ const OrderList: React.FC<TableListItem> = () => {
           pageSizeOptions: ['5', '10', '15', '20'],
           showQuickJumper: true,
         }}
-        request={async (params) => {
+        request={async (params: any) => {
           const queryInfo = {
             query: Query,
             pagenum: params.current, // 当前页数
