@@ -1,26 +1,49 @@
 import React, { useState, useRef } from 'react'
 import { PageHeaderWrapper } from '@ant-design/pro-layout'
-import { Input, Button, Row, Col, message } from 'antd'
+import { Input, Button, Row, Col, Tag, message } from 'antd'
 import ProTable from '@ant-design/pro-table'
-import { DeleteOutlined, EditOutlined, EnvironmentOutlined } from '@ant-design/icons'
-import { queryTableData, deleteUsers } from './service'
+import { EditOutlined, EnvironmentOutlined } from '@ant-design/icons'
 import { newDate } from '@/utils/tool'
-import { TableListItem } from './data.d'
+import _ from 'lodash'
+import { queryTableData, amendOrdeStatus } from './service'
+import OrdeStatus from './components/ordeStatus'
 import styles from './index.less'
 
 const { Search } = Input
 
-const OrderList: React.FC<TableListItem> = () => {
+const OrderList: React.FC<{}> = () => {
   const [Query, setquery] = useState('')
-  const [addUserShow, setaddUserShow] = useState(false)
-  const [judge, setjudge] = useState(false)
-  const [amendUser, setamendUser] = useState('')
+  const [showOrdeStatus, setshowOrdeStatus] = useState(false)
+  const [OrdeData, setOrdeData] = useState<any>({})
   const ref = useRef<any>()
 
   // 高级搜索
   const advancedSearch = (value: string) => {
     setquery(value)
     ref.current.reload()
+  }
+
+  // 对话框取消回调，
+  const onCancel = () => {
+    setshowOrdeStatus(false)
+  }
+
+  // 显示修改对话框
+  const showModal = (record: any) => {
+    const data = _.cloneDeep(record)
+    setOrdeData(data)
+    setshowOrdeStatus(true)
+  }
+
+  // 确认修改状态
+  const amendStatus = async (params: any) => {
+    const { meta } = await amendOrdeStatus(params)
+    if (meta.status !== 201) {
+      return message.error(meta.msg)
+    }
+    message.success('修改成功')
+    ref.current.reload()
+    return setshowOrdeStatus(false)
   }
 
   const title = (
@@ -48,9 +71,36 @@ const OrderList: React.FC<TableListItem> = () => {
       key: 'order_price',
     },
     {
-      title: '是否付款',
+      title: '订单支付',
       dataIndex: 'order_pay',
       key: 'order_pay',
+      render: (payStatus: any) => {
+        let pay
+        if (payStatus === '0') {
+          pay = <Tag color="red">未支付</Tag>
+        } else if (payStatus === '1') {
+          pay = <Tag color="orange">支付宝</Tag>
+        } else if (payStatus === '2') {
+          pay = <Tag color="green">微信</Tag>
+        } else if (payStatus === '3') {
+          pay = <Tag color="blue">银行卡</Tag>
+        }
+        return pay
+      },
+    },
+    {
+      title: '支付状态',
+      dataIndex: 'pay_status',
+      key: 'pay_status',
+      render: (status: any) => {
+        let pay
+        if (status === '0') {
+          pay = '未付款'
+        } else if (status === '1') {
+          pay = '已付款'
+        }
+        return pay
+      },
     },
     {
       title: '是否发货',
@@ -61,7 +111,7 @@ const OrderList: React.FC<TableListItem> = () => {
       title: '下单时间',
       dataIndex: 'create_time',
       key: 'create_time',
-      render: (_: any) => newDate(_),
+      render: (time: any) => newDate(time),
     },
     {
       title: '操作',
@@ -69,7 +119,7 @@ const OrderList: React.FC<TableListItem> = () => {
       render: (record: any) => {
         return (
           <div className={styles.buttonWrap}>
-            <Button type="primary">
+            <Button type="primary" onClick={() => showModal(record)}>
               <EditOutlined style={{ fontSize: '13px' }} />
             </Button>
             <Button type="primary">
@@ -83,7 +133,7 @@ const OrderList: React.FC<TableListItem> = () => {
 
   return (
     <PageHeaderWrapper>
-      <ProTable<TableListItem>
+      <ProTable
         rowKey="key"
         actionRef={ref}
         columns={columns}
@@ -106,7 +156,7 @@ const OrderList: React.FC<TableListItem> = () => {
           if (meta.status !== 200) return
           data.goods.map((item: any, index: any) => {
             const Obj = item
-            Obj.key = item.user_id
+            Obj.key = item.order_id
             Obj.index = index + 1
             return Obj
           })
@@ -120,6 +170,7 @@ const OrderList: React.FC<TableListItem> = () => {
           return result
         }}
       />
+      <OrdeStatus modalVisible={showOrdeStatus} onCancel={onCancel} OrdeData={OrdeData} amendStatus={amendStatus} />
     </PageHeaderWrapper>
   )
 }

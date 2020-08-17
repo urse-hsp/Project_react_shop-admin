@@ -1,31 +1,31 @@
-import { Axis, Chart, Geom, Tooltip, AxisProps } from 'bizcharts';
+import { Axis, Chart, Geom, Tooltip, AxisProps } from 'bizcharts'
 
-import React from 'react';
-import autoHeight from '../autoHeight';
-import styles from '../index.less';
+import React from 'react'
+import autoHeight from '../autoHeight'
+import styles from '../index.less'
 
 export interface MiniAreaProps {
-  color?: string;
-  height?: number;
-  borderColor?: string;
-  line?: boolean;
-  animate?: boolean;
-  xAxis?: AxisProps;
-  forceFit?: boolean;
+  color?: string
+  height?: number
+  borderColor?: string
+  line?: boolean
+  animate?: boolean
+  xAxis?: AxisProps
+  forceFit?: boolean
   scale?: {
     x?: {
-      tickCount: number;
-    };
+      tickCount: number
+    }
     y?: {
-      tickCount: number;
-    };
-  };
-  yAxis?: Partial<AxisProps>;
-  borderWidth?: number;
+      tickCount: number
+    }
+  }
+  yAxis?: Partial<AxisProps>
+  borderWidth?: number
   data: {
-    x: number | string;
-    y: number;
-  }[];
+    x: number | string
+    y: number
+  }[]
 }
 
 const MiniArea: React.FC<MiniAreaProps> = (props) => {
@@ -41,9 +41,9 @@ const MiniArea: React.FC<MiniAreaProps> = (props) => {
     xAxis,
     yAxis,
     animate = true,
-  } = props;
+  } = props
 
-  const padding: [number, number, number, number] = [36, 5, 30, 5];
+  const padding: [number, number, number, number] = [36, 5, 30, 5]
 
   const scaleProps = {
     x: {
@@ -55,7 +55,7 @@ const MiniArea: React.FC<MiniAreaProps> = (props) => {
       min: 0,
       ...scale.y,
     },
-  };
+  }
 
   const tooltip: [string, (...args: any[]) => { name?: string; value: string }] = [
     'x*y',
@@ -63,40 +63,17 @@ const MiniArea: React.FC<MiniAreaProps> = (props) => {
       name: x,
       value: y,
     }),
-  ];
+  ]
 
-  const chartHeight = height + 54;
+  const chartHeight = height + 54
 
   return (
     <div className={styles.miniChart} style={{ height }}>
       <div className={styles.chartContent}>
         {height > 0 && (
-          <Chart
-            animate={animate}
-            scale={scaleProps}
-            height={chartHeight}
-            forceFit={forceFit}
-            data={data}
-            padding={padding}
-          >
-            <Axis
-              key="axis-x"
-              name="x"
-              label={null}
-              line={null}
-              tickLine={null}
-              grid={null}
-              {...xAxis}
-            />
-            <Axis
-              key="axis-y"
-              name="y"
-              label={null}
-              line={null}
-              tickLine={null}
-              grid={null}
-              {...yAxis}
-            />
+          <Chart animate={animate} scale={scaleProps} height={chartHeight} forceFit={forceFit} data={data} padding={padding}>
+            <Axis key="axis-x" name="x" label={null} line={null} tickLine={null} grid={null} {...xAxis} />
+            <Axis key="axis-y" name="y" label={null} line={null} tickLine={null} grid={null} {...yAxis} />
             <Tooltip showTitle={false} crosshairs={false} />
             <Geom
               type="area"
@@ -109,14 +86,7 @@ const MiniArea: React.FC<MiniAreaProps> = (props) => {
               }}
             />
             {line ? (
-              <Geom
-                type="line"
-                position="x*y"
-                shape="smooth"
-                color={borderColor}
-                size={borderWidth}
-                tooltip={false}
-              />
+              <Geom type="line" position="x*y" shape="smooth" color={borderColor} size={borderWidth} tooltip={false} />
             ) : (
               <span style={{ display: 'none' }} />
             )}
@@ -124,7 +94,7 @@ const MiniArea: React.FC<MiniAreaProps> = (props) => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default autoHeight()(MiniArea);
+export default autoHeight()(MiniArea)

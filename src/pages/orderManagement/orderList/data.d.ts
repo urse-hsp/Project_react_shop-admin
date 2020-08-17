@@ -1,15 +1,13 @@
-export interface TableListItem {
-  key: number
-  disabled?: boolean
-  href: string
-  avatar: string
-  name: string
-  owner: string
-  desc: string
-  callNo: number
-  status: string
-  updatedAt: Date
-  createdAt: Date
-  progress: number
-  num: number
+export interface QueryTableDataProps {
+  query: string
+  pagenum: number
+  pagesize: number
+}
+
+export interface AmendOrdeStatusProps {
+  id: number
+  is_send: any
+  order_pay: any
+  order_price: any
+  pay_status: any
 }
