@@ -22,3 +22,10 @@ export async function amendOrdeStatus(params: AmendOrdeStatusProps) {
     },
   })
 }
+
+//   查看物流信息
+export async function LogisticsInformation(params: any) {
+  return request(`${BASE_URL}kuaidi/${params.id}`, {
+    method: 'get',
+  })
+}

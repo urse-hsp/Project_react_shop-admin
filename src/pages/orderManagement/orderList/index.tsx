@@ -5,8 +5,9 @@ import ProTable from '@ant-design/pro-table'
 import { EditOutlined, EnvironmentOutlined } from '@ant-design/icons'
 import { newDate } from '@/utils/tool'
 import _ from 'lodash'
-import { queryTableData, amendOrdeStatus } from './service'
-import OrdeStatus from './components/ordeStatus'
+import { queryTableData, amendOrdeStatus, LogisticsInformation } from './service'
+import OrdeStatus from './components/ordeStatus/index'
+import Logistics from './components/logistics/index'
 import styles from './index.less'
 
 const { Search } = Input
@@ -14,7 +15,9 @@ const { Search } = Input
 const OrderList: React.FC<{}> = () => {
   const [Query, setquery] = useState('')
   const [showOrdeStatus, setshowOrdeStatus] = useState(false)
+  const [showHideLogistics, setShowHideLogistics] = useState(false)
   const [OrdeData, setOrdeData] = useState<any>({})
+  const [logisticsInformationList, setLogisticsInformationList] = useState<any>([])
   const ref = useRef<any>()
 
   // 高级搜索
@@ -26,6 +29,7 @@ const OrderList: React.FC<{}> = () => {
   // 对话框取消回调，
   const onCancel = () => {
     setshowOrdeStatus(false)
+    setShowHideLogistics(false)
   }
 
   // 显示修改对话框
@@ -44,6 +48,15 @@ const OrderList: React.FC<{}> = () => {
     message.success('修改成功')
     ref.current.reload()
     return setshowOrdeStatus(false)
+  }
+
+  // 显示物理信息对话框
+  const showLogistics = async () => {
+    const { meta, data } = await LogisticsInformation({ id: 1106975712662 })
+    if (meta.status === 200) {
+      setLogisticsInformationList(data)
+    }
+    setShowHideLogistics(true)
   }
 
   const title = (
@@ -122,7 +135,7 @@ const OrderList: React.FC<{}> = () => {
             <Button type="primary" onClick={() => showModal(record)}>
               <EditOutlined style={{ fontSize: '13px' }} />
             </Button>
-            <Button type="primary">
+            <Button type="primary" onClick={showLogistics}>
               <EnvironmentOutlined style={{ fontSize: '13px' }} />
             </Button>
           </div>
@@ -171,6 +184,7 @@ const OrderList: React.FC<{}> = () => {
         }}
       />
       <OrdeStatus modalVisible={showOrdeStatus} onCancel={onCancel} OrdeData={OrdeData} amendStatus={amendStatus} />
+      <Logistics modalVisible={showHideLogistics} onCancel={onCancel} logisticsInformationList={logisticsInformationList} />
     </PageHeaderWrapper>
   )
 }
