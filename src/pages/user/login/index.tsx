@@ -63,9 +63,7 @@ const Login: React.FC<LoginProps> = (props) => {
     <div className={styles.main}>
       <LoginFrom activeKey={type} onTabChange={setType} onSubmit={handleSubmit}>
         <Tab key="account" tab="账户密码登录">
-          {status === 'error' && loginType === 'account' && !submitting && (
-            <LoginMessage content="账户或密码错误（admin/123456" />
-          )}
+          {status === 'error' && loginType === 'account' && !submitting && <LoginMessage content="账户或密码错误（admin/123456" />}
           <UserName name="userName" placeholder="用户名 : admin" rules={loginFormRules.userName} />
           <Password name="password" placeholder="密码 : 123456" rules={loginFormRules.password} />
         </Tab>
@@ -122,19 +120,7 @@ const Login: React.FC<LoginProps> = (props) => {
   )
 }
 
-export default connect(
-  ({
-    userAndlogin,
-    loading,
-  }: {
-    userAndlogin: StateType
-    loading: {
-      effects: {
-        [key: string]: boolean
-      }
-    }
-  }) => ({
-    userAndlogin,
-    submitting: loading.effects['userAndlogin/login'],
-  }),
-)(Login)
+export default connect(({ userAndlogin, loading }: { userAndlogin: StateType; loading: { effects: { [key: string]: boolean } } }) => ({
+  userAndlogin,
+  submitting: loading.effects['userAndlogin/login'],
+}))(Login)

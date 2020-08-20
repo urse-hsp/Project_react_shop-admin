@@ -1,4 +1,4 @@
-import demo from './demo'
+// import demo from './demo'
 import routess from './routes'
 
 const routes = [
@@ -38,7 +38,7 @@ const routes = [
         component: '../layouts/BasicLayout',
         Routes: ['src/pages/Authorized'],
         authority: ['user'],
-        routes: [...routess, ...demo, { component: '404' }],
+        routes: [...routess, { component: '404' }],
       },
     ],
   },

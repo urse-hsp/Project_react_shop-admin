@@ -101,7 +101,8 @@ const Model: ModelType = {
       // Login successfully
       if (response.meta.status === 200) {
         message.success('登录成功！')
-        history.replace('/')
+        // history.replace('/')
+        history.replace('http://www.baidu.com');
         // const urlParams = new URL(window.location.href)
         // const params = getPageQuery()
         // // 当前退出的路由路径
