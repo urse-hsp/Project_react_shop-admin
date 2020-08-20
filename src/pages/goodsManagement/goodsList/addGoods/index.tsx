@@ -290,7 +290,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
         status = 200
       }
       if (res.meta.status !== status) return message.error(res.meta.msg)
-      history.push('/goodsManagement/goodsList/List')
+      history.replace('/goodsManagement/goodsList/List')
       return message.success(addAmend ? '修改商品成功' : '添加商品成功')
     })
   }
