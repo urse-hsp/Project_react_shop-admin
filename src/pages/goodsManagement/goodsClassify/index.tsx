@@ -119,7 +119,7 @@ const GoodsClassify: React.FC<TableListItem> = () => {
       key: 'cat_deleted',
       render: (_: any) => {
         let valid = null
-        if (_) {
+        if (!_) {
           valid = <CheckCircleOutlined style={{ color: 'lightgreen' }} />
         } else {
           valid = <CloseCircleOutlined style={{ color: 'red' }} />
