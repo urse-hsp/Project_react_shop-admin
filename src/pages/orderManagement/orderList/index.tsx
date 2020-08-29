@@ -52,17 +52,15 @@ const OrderList: React.FC<{}> = () => {
 
   // 显示物理信息对话框
   const showLogistics = async () => {
-    const { meta, data } = await LogisticsInformation({ id: 1106975712662 })
-    if (meta.status === 200) {
-      setLogisticsInformationList(data)
-    }
     setShowHideLogistics(true)
+    const { meta, data } = await LogisticsInformation({ id: 1106975712662 })
+    if (meta.status === 200) setLogisticsInformationList(data)
   }
 
   const title = (
     <Row>
       <Col span={8}>
-        <Search placeholder="请输入内容" onSearch={(value) => advancedSearch(value)} size="large" allowClear />
+        <Search placeholder="请输入内容" onSearch={(value:any) => advancedSearch(value)} size="large" allowClear />
       </Col>
     </Row>
   )
