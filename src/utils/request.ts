@@ -58,6 +58,7 @@ request.interceptors.request.use((url, options) => {
   const headers = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
+
     Authorization: Token(),
   }
   return {
