@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { PageHeaderWrapper } from '@ant-design/pro-layout'
+// import { PageHeaderWrapper } from '@ant-design/pro-layout'
 import { Input, Button, Row, Col, Tooltip, Switch, message, Popconfirm } from 'antd'
 import ProTable from '@ant-design/pro-table'
 import { PlusOutlined, DeleteOutlined, SettingOutlined, EditOutlined, QuestionCircleOutlined } from '@ant-design/icons'
@@ -183,7 +183,7 @@ const UsersList: React.FC<TableListItem> = () => {
   ]
 
   return (
-    <PageHeaderWrapper>
+    <div>
       {/* <Card bordered={false}> */}
       <ProTable<TableListItem>
         rowKey="key"
@@ -238,7 +238,7 @@ const UsersList: React.FC<TableListItem> = () => {
         allocationUserRole={allocationUserRole}
       />
       {/* </Card> */}
-    </PageHeaderWrapper>
+    </div>
   )
 }
 
