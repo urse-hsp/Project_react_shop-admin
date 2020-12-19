@@ -61,7 +61,7 @@ request.interceptors.request.use((url, options) => {
     Authorization: Token(),
   }
   return {
-    url: `${BASE_URL}${url}`,
+    url: BASE_URL + url,
     options: { ...options, headers },
   }
 })
