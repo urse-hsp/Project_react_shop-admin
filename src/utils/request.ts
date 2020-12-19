@@ -4,7 +4,7 @@
  */
 import { extend } from 'umi-request'
 import { notification } from 'antd'
-import { Token } from './tool'
+import { Token, BASE_URL } from './tool'
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -58,11 +58,10 @@ request.interceptors.request.use((url, options) => {
   const headers = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
-
     Authorization: Token(),
   }
   return {
-    url,
+    url: `${BASE_URL}${url}`,
     options: { ...options, headers },
   }
 })

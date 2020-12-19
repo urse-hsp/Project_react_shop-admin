@@ -1,5 +1,4 @@
 import request from 'umi-request'
-import { BASE_URL } from '@/utils/tool'
 
 export interface LoginParamsType {
   userName: string
@@ -20,7 +19,7 @@ export async function getFakeCaptcha(mobile: string) {
 }
 
 export async function login(params: LoginParamsType) {
-  return request(`${BASE_URL}login`, {
+  return request(`login`, {
     method: 'POST',
     data: params,
   })

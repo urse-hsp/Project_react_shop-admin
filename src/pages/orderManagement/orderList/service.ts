@@ -1,10 +1,9 @@
 import request from 'umi-request'
-import { BASE_URL } from '@/utils/tool'
 import { QueryTableDataProps, AmendOrdeStatusProps } from './data'
 
 // 订单数据列表
 export async function queryTableData(params: QueryTableDataProps) {
-  return request(`${BASE_URL}orders`, {
+  return request(`orders`, {
     method: 'get',
     params,
   })
@@ -12,7 +11,7 @@ export async function queryTableData(params: QueryTableDataProps) {
 
 //  修改订单状态
 export async function amendOrdeStatus(params: AmendOrdeStatusProps) {
-  return request(`${BASE_URL}orders/${params.id}`, {
+  return request(`orders/${params.id}`, {
     method: 'put',
     data: {
       is_send: params.is_send,
@@ -25,7 +24,7 @@ export async function amendOrdeStatus(params: AmendOrdeStatusProps) {
 
 //   查看物流信息
 export async function LogisticsInformation(params: any) {
-  return request(`${BASE_URL}kuaidi/${params.id}`, {
+  return request(`kuaidi/${params.id}`, {
     method: 'get',
   })
 }
