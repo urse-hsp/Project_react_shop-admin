@@ -14,7 +14,6 @@ COPY --from=BUILD /app/dist /app
 
 # 声明运行时容器暴露的端口（容器提供的服务端口）
 EXPOSE 9000
-
 RUN echo 'echo init ok!!'
 
 
