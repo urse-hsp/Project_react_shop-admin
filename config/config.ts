@@ -1,13 +1,14 @@
 // https://umijs.org/config/
-import { defineConfig } from 'umi';
-import defaultSettings from './defaultSettings';
-import proxy from './proxy';
+import { defineConfig } from 'umi'
+import defaultSettings from './defaultSettings'
+import proxy from './proxy'
 import route from './routes'
-const { REACT_APP_ENV } = process.env;
+const { REACT_APP_ENV } = process.env
 
 export default defineConfig({
   hash: true,
   antd: {},
+  mfsu: {},
   dva: {
     hmr: true,
   },
@@ -38,4 +39,4 @@ export default defineConfig({
   manifest: {
     basePath: '/',
   },
-});
+})
