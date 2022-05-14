@@ -44,9 +44,7 @@ const GoodsList: React.FC<TableListItem> = () => {
 
   const title = (
     <Row>
-      <Col span={8}>
-        <Search placeholder="请输入内容" onSearch={(value) => advancedSearch(value)} size="large" allowClear />
-      </Col>
+      <Search placeholder="请输入内容" onSearch={(value) => advancedSearch(value)} size="large" allowClear />
     </Row>
   )
   const columns = [
