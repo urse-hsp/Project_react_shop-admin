@@ -2,12 +2,12 @@ FROM node as BUILD
 MAINTAINER Min "hsp_email@163.com"
 WORKDIR  /app
 COPY . /app/
-VOLUME ./node_modules /app/node_modules
+# VOLUME ./node_modules /app/node_modules
 RUN cnpm install && cnpm run build
 
 
 # 使用 nginx最新版本作为基础镜像
-FROM nginx
+# FROM nginx
 # COPY --from=BUILD /app/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY --from=BUILD /app/dist /app
 
