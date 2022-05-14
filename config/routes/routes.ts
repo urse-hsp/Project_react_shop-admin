@@ -76,7 +76,7 @@ const routes = [
       {
         name: 'usersList',
         path: '/orderManagement/orderList',
-        component: './orderManagement/OrderList',
+        component: './orderManagement/orderList',
       },
     ],
   },
