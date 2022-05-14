@@ -91,9 +91,7 @@ class UsersList extends React.Component<TableListItem> {
   render() {
     const title = (
       <Row>
-        <Col span={8}>
-          <Search placeholder="请输入内容" onSearch={(value) => this.advancedSearch(value)} size="large" allowClear />
-        </Col>
+        <Search placeholder="请输入内容" onSearch={(value) => this.advancedSearch(value)} size="large" allowClear />
       </Row>
     )
     const columns = [

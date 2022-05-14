@@ -59,9 +59,7 @@ const OrderList: React.FC<{}> = () => {
 
   const title = (
     <Row>
-      <Col span={8}>
-        <Search placeholder="请输入内容" onSearch={(value:any) => advancedSearch(value)} size="large" allowClear />
-      </Col>
+      <Search placeholder="请输入内容" onSearch={(value: any) => advancedSearch(value)} size="large" allowClear />
     </Row>
   )
   const columns = [
