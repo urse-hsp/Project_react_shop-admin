@@ -6,7 +6,7 @@ import route from './routes'
 const { REACT_APP_ENV } = process.env
 
 export default defineConfig({
-  // base: '/app',
+  base: '/usr/share/nginx',
   hash: true,
   antd: {},
   mfsu: {},

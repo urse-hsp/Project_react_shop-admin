@@ -10,7 +10,7 @@
 # COPY --from=BUILD /app/dist /app
 
 FROM nginx
-COPY --from=BUILD /app/nginx/nginx.conf /etc/nginx/nginx.conf
+# COPY --from=BUILD /app/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY ./dist /usr/share/nginx/html
 
 
