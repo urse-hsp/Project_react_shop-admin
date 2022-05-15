@@ -10,8 +10,8 @@
 # COPY --from=BUILD /app/dist /app
 
 FROM nginx
+# COPY --from=BUILD /app/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY ./dist /usr/share/nginx/html
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 
 # 声明运行时容器暴露的端口（容器提供的服务端口）
