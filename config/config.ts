@@ -6,9 +6,10 @@ import route from './routes'
 const { REACT_APP_ENV } = process.env
 
 export default defineConfig({
-  exportStatic:{},
+  exportStatic: {},
+  history: { type: 'hash' },
   // base: '/app',
-  hash: true,
+  // hash: true,
   antd: {},
   mfsu: {},
   dva: {
