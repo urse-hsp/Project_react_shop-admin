@@ -4,9 +4,11 @@ import { UploadOutlined } from '@ant-design/icons'
 import E from 'wangeditor'
 import { history } from 'umi'
 import { BASE_URL, Token } from '@/utils/tool'
-import { AddGoodsProps, UploadProps } from './data'
-import { getGoodsClassifyList, getGoodsClassifyparameter, addTheGoods, amendGoods } from './service'
+import type { AddGoodsProps, UploadProps } from './data'
+import { getGoodsClassifyList, getGoodsClassifyparameter, addTheGoods, amendGoods, getGoodsInfo } from './service'
 import styles from './styles.less'
+import { useLocation } from 'umi'
+import { number } from 'prop-types'
 
 const { Step } = Steps
 const { TabPane } = Tabs
@@ -28,9 +30,8 @@ const addGoodsRules = {
 }
 
 const AddGoods: React.FC<AddGoodsProps> = (props) => {
-  const {
-    location: { state },
-  } = props
+  const { query }: any = useLocation()
+
   const [form] = Form.useForm()
   const [current, setCurrent] = useState(0) // 标签页和时间轴 的选中
   const [classifyDataList, setclassifyDataList] = useState([]) // 商品分类
@@ -43,6 +44,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
 
   const [editorContent, setEditorContent] = useState('') // 修改页面的商品数据
   const [goodsImg, setGoodsImg] = useState<any>([]) // 商品图片数据
+  const [info, setInfo] = useState<any>({}) // 当前数据
 
   // 富文本编辑器
   const initEditor = () => {
@@ -135,42 +137,49 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
     if (value.length < 3) form.setFieldsValue({ goods_cat: '' })
   }
 
+  const getInfo = async () => {
+    console.log(query.id, 'query.id')
+
+    if (!query.id) return
+    const res = await getGoodsInfo(Number(query.id))
+    setInfo(res.data)
+    setAddAmend(true)
+    // 修改页面渲染数据
+    const Data = res.data
+    form.setFieldsValue({
+      goods_name: Data.goods_name,
+      goods_price: Data.goods_price,
+      goods_weight: Data.goods_weight,
+      goods_number: Data.goods_number,
+      goods_cat: Data.goods_cat,
+    })
+
+    // 处理图片数据
+    Data.pics.map((item: any) => {
+      const Obj = item
+      Obj.uid = item.pics_id
+      Obj.url = item.pics_big_url
+      return Obj
+    })
+
+    // 商品参数处理
+    Data.attrs.map((item: any) => {
+      const Obj = item
+      if (Obj.attr_sel === 'many') {
+        Obj.parameter = Obj.attr_value.split(',')
+      }
+      return Obj
+    })
+    setParameter(Data.attrs)
+
+    setGoodsImg(Data.pics)
+    setactionGoodscat(Data.goods_cat)
+    setEditorContent(Data.goods_introduce)
+  }
+
   // 初始化
   useEffect(() => {
-    if (state) {
-      setAddAmend(true)
-      // 修改页面渲染数据
-      const Data = state.GoodsData
-      form.setFieldsValue({
-        goods_name: Data.goods_name,
-        goods_price: Data.goods_price,
-        goods_weight: Data.goods_weight,
-        goods_number: Data.goods_number,
-        goods_cat: Data.goods_cat,
-      })
-
-      // 处理图片数据
-      Data.pics.map((item: any) => {
-        const Obj = item
-        Obj.uid = item.pics_id
-        Obj.url = item.pics_big_url
-        return Obj
-      })
-
-      // 商品参数处理
-      Data.attrs.map((item: any) => {
-        const Obj = item
-        if (Obj.attr_sel === 'many') {
-          Obj.parameter = Obj.attr_value.split(',')
-        }
-        return Obj
-      })
-      setParameter(Data.attrs)
-
-      setGoodsImg(state.GoodsData.pics)
-      setactionGoodscat(state.GoodsData.goods_cat)
-      setEditorContent(state.GoodsData.goods_introduce)
-    }
+    getInfo()
     getDataList()
   }, [])
 
@@ -271,7 +280,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
     form.validateFields().then(async (values) => {
       const GoodsData = {
         goods_name: values.goods_name,
-        goods_cat: values.goods_cat.join(','),
+        goods_cat: values.goods_cat,
         goods_price: values.goods_price,
         goods_number: values.goods_number,
         goods_weight: values.goods_weight,
@@ -286,7 +295,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
         res = await addTheGoods(GoodsData)
         status = 201
       } else {
-        res = await amendGoods({ id: state.GoodsData.goods_id, data: GoodsData })
+        res = await amendGoods({ id: info.goods_id, data: GoodsData })
         status = 200
       }
       if (res.meta.status !== status) return message.error(res.meta.msg)

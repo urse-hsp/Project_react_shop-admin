@@ -1,5 +1,5 @@
 import request from 'umi-request'
-import { GetGoodsClassifyparameterProps, AddTheGoodsProps, AmendGoodsProps } from './data'
+import type { GetGoodsClassifyparameterProps, AddTheGoodsProps, AmendGoodsProps } from './data'
 
 // 请求用户列表
 export async function getGoodsClassifyList() {
@@ -29,5 +29,12 @@ export async function amendGoods(params: AmendGoodsProps) {
   return request(`goods/${params.id}`, {
     method: 'put',
     data: params.data,
+  })
+}
+
+// info
+export async function getGoodsInfo(id: number) {
+  return request(`goods/${id}`, {
+    method: 'get',
   })
 }
