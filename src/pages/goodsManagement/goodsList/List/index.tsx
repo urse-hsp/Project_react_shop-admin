@@ -5,7 +5,7 @@ import { DeleteOutlined, EditOutlined, QuestionCircleOutlined } from '@ant-desig
 import { history } from 'umi'
 import { newDate } from '@/utils/tool'
 import { queryTableData, deleteUsers, getGoods } from './service'
-import { TableListItem, ResultProps } from './data.d'
+import type { TableListItem, ResultProps } from './data.d'
 import styles from './index.less'
 
 const { Search } = Input
@@ -38,7 +38,7 @@ const GoodsList: React.FC<TableListItem> = () => {
     const Goodscat = data.goods_cat.split(',')
     const action = Goodscat.map(Number)
     data.goods_cat = action
-    history.push('/goodsManagement/goodsList/addGoods', { GoodsData: data })
+    history.push(`/goodsManagement/goodsList/addGoods?id=${data.goods_id}`, { GoodsData: data })
     return true
   }
 
