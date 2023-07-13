@@ -62,7 +62,7 @@ request.interceptors.request.use((url, options) => {
   }
   return {
     url: BASE_URL + url,
-    options: { ...options, headers },
+    options: { ...options, headers, credentials: 'include' },
   }
 })
 
