@@ -28,8 +28,8 @@ const GoodsClassify: React.FC<TableListItem> = () => {
     setJudge(judgeBoole)
     const queryInfo: QueryTableDataProps = {
       type: 2,
-      pagenum: undefined, // 当前页数
-      pagesize: undefined, // 当前每页显示多少条数据
+      current: undefined, // 当前页数
+      pageSize: undefined, // 当前每页显示多少条数据
     }
     if (judgeBoole) {
       const { data, meta } = await queryTableData(queryInfo)
@@ -189,8 +189,8 @@ const GoodsClassify: React.FC<TableListItem> = () => {
         request={async (params) => {
           const queryInfo = {
             type: 3,
-            pagenum: params.current, // 当前页数
-            pagesize: params.pageSize, // 当前每页显示多少条数据
+            current: params.current, // 当前页数
+            pageSize: params.pageSize, // 当前每页显示多少条数据
           }
           const { data, meta } = await queryTableData(queryInfo)
           if (meta.status !== 200) {

@@ -1,7 +1,7 @@
 export interface QueryTableDataProps {
   query: string
-  pagenum: number
-  pagesize: number
+  current: number
+  pageSize: number
 }
 
 export interface AmendOrdeStatusProps {

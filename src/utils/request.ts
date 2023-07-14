@@ -5,6 +5,7 @@
 import { extend } from 'umi-request'
 import { notification } from 'antd'
 import { Token, BASE_URL } from './tool'
+import { message } from 'antd'
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -54,15 +55,43 @@ const request = extend({
   credentials: 'include', // 默认请求是否带上cookie
 })
 
+// 请求拦截器
 request.interceptors.request.use((url, options) => {
   const headers = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
     Authorization: Token(),
   }
+
   return {
     url: BASE_URL + url,
     options: { ...options, headers, credentials: 'include' },
+  }
+})
+
+// 响应拦截器
+request.interceptors.response.use(async (response) => {
+  // 在接收到响应后执行的逻辑
+
+  // 可以对响应进行处理
+  const data = await response.clone().json()
+  console.log('响应拦截器执行', data, response)
+  if (response.status === 200) {
+    return data
+  } else if (response.status === 201) {
+    // 创建成功
+    message.success('创建成功')
+    return true
+  } else if (response.status === 204) {
+    // 更新/删除成功
+    message.success('操作成功')
+    return true
+  } else if (response.status === 422) {
+    // 错误处理
+    message.error(data)
+    return false
+  } else {
+    return false
   }
 })
 
