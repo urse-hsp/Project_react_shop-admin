@@ -16,8 +16,8 @@ export interface TableListItem {
 
 export interface LoginParamsType {
   query: string
-  pagenum: string
-  pagesize: string
+  current: string
+  pageSize: string
   id: number
   mg_state: boolean
   data: any
@@ -26,8 +26,8 @@ export interface LoginParamsType {
 
 export interface QueryTableDataProps {
   type: number
-  pagenum: number | undefined
-  pagesize: number | undefined
+  current: number | undefined
+  pageSize: number | undefined
 }
 
 export interface AddClassifyProps {

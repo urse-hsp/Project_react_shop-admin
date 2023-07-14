@@ -21,6 +21,6 @@ export interface LoginParamsType {
 }
 export interface QueryTableDataProps {
   query: any
-  pagenum: any
-  pagesize: any
+  current: any
+  pageSize: any
 }

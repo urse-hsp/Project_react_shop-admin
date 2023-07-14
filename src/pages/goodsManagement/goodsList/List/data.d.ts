@@ -16,8 +16,8 @@ export interface TableListItem {
 
 export interface QueryTableDataProps {
   query: string
-  pagenum: any
-  pagesize: any
+  current: any
+  pageSize: any
 }
 
 export interface DeleteUsersProps {

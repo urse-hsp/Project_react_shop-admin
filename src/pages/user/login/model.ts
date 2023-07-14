@@ -8,15 +8,12 @@ import { getFakeCaptcha, login } from './service'
 //   return parse(window.location.href.split('?')[1])
 // }
 
-export function setAuthority(authority: any | any[]) {
-  if (authority.autoLogin) {
-    localStorage.setItem('adminData', JSON.stringify(authority.data))
+export function setAuthority(data: any | any[]) {
+  if (data.id) {
+    localStorage.setItem('adminData', JSON.stringify(data))
   } else {
-    window.sessionStorage.setItem('adminData', JSON.stringify(authority.data))
+    window.sessionStorage.setItem('adminData', JSON.stringify(data))
   }
-  // export function setAuthority(authority: any) {
-  // const proAuthority = typeof authority === 'string' ? [authority] : authority
-
   // hard code
   // reload Authorized component
   try {
@@ -27,7 +24,7 @@ export function setAuthority(authority: any | any[]) {
     // do not need do anything
   }
 
-  return authority
+  return data
 }
 
 export interface StateType {
@@ -90,37 +87,15 @@ const Model: ModelType = {
         password: payload.password,
       }
       const response = yield call(login, param)
-      if (response.meta.status !== 200) {
-        message.error(`${response.meta.msg}!`)
-        return
-      }
+      if (!response) return
+
       yield put({
         type: 'changeLoginStatus',
         payload: { ...response, autoLogin: payload.autoLogin },
       })
       // Login successfully
-      if (response.meta.status === 200) {
-        message.success('登录成功！')
-        // history.replace('/')
-        history.replace('http://www.baidu.com');
-        // const urlParams = new URL(window.location.href)
-        // const params = getPageQuery()
-        // // 当前退出的路由路径
-        // let { redirect } = params as { redirect: string }
-        // if (redirect) {
-        //   const redirectUrlParams = new URL(redirect)
-        //   if (redirectUrlParams.origin === urlParams.origin) {
-        //     redirect = redirect.substr(urlParams.origin.length)
-        //     if (redirect.match(/^\/.*#/)) {
-        //       redirect = redirect.substr(redirect.indexOf('#') + 1)
-        //     }
-        //   } else {
-        //     window.location.href = redirect
-        //     return
-        //   }
-        // }
-        // history.replace(redirect || '/')
-      }
+      message.success('登录成功！')
+      history.replace('http://www.baidu.com')
     },
 
     *getCaptcha({ payload }, { call }) {

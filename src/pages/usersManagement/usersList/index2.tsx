@@ -183,8 +183,8 @@ class UsersList extends React.Component<TableListItem> {
             request={async (params) => {
               const queryInfo = {
                 query: this.state.query,
-                pagenum: params.current, // 当前页数
-                pagesize: params.pageSize, // 当前每页显示多少条数据
+                current: params.current, // 当前页数
+                pageSize: params.pageSize, // 当前每页显示多少条数据
               }
               const { data, meta } = await queryTableData(queryInfo)
               if (meta.status !== 200) return
