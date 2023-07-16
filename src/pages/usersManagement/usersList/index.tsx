@@ -6,7 +6,7 @@ import { PlusOutlined, DeleteOutlined, SettingOutlined, EditOutlined, QuestionCi
 import { queryTableData, changeTypes, deleteUsers, addUsers, changeUsers, getRoles, allocationRole } from './service'
 import AllocationRole from './components/Role'
 import CreateForm from './components/CreateForm'
-import { TableListItem } from './data.d'
+import type { TableListItem } from './data.d'
 
 import styles from './index.less'
 
@@ -68,11 +68,11 @@ const UsersList: React.FC<TableListItem> = () => {
   // 添加和修改用户
   const createUsers = async (data: any) => {
     if (judge) {
-      const { meta } = await changeUsers(data, amendUser)
-      if (meta.status !== 200) {
-        message.error(meta.msg)
+      const data = await changeUsers(data, amendUser)
+      if (!data) {
+        // message.error(meta.msg)
+        message.success('123')
       }
-      message.success(meta.msg)
     } else {
       const { meta } = await addUsers(data)
       if (meta.status !== 201) {
@@ -205,21 +205,22 @@ const UsersList: React.FC<TableListItem> = () => {
         request={async (params) => {
           const queryInfo = {
             query: Query,
-            current: params.current, // 当前页数
-            pageSize: params.pageSize, // 当前每页显示多少条数据
+            current: Number(params.current), // 当前页数
+            pageSize: Number(params.pageSize), // 当前每页显示多少条数据
           }
 
-          const { data, meta } = await queryTableData(queryInfo)
-          if (meta.status !== 200) return
-          data.users.map((item: any, index: any) => {
+          const res = await queryTableData(queryInfo)
+          if (!res) return
+          const { total, data } = res
+          data.map((item: any, index: any) => {
             const Obj = item
             Obj.key = item.id
             Obj.index = index + 1
             return Obj
           })
           const result = {
-            data: data.users,
-            total: data.total,
+            data: data,
+            total: total,
             success: true,
             pageSize: params.pageSize,
             current: params.current,
