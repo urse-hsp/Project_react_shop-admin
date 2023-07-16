@@ -88,7 +88,7 @@ request.interceptors.response.use(async (response) => {
     return true
   } else if (response.status === 422) {
     // 错误处理
-    message.error(data)
+    message.error(data.error)
     return false
   } else {
     return false
