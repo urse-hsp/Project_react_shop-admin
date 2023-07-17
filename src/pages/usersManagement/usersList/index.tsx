@@ -26,11 +26,8 @@ const UsersList: React.FC<TableListItem> = () => {
 
   // 修改用户状态
   const changeType = async (record: any) => {
-    const { meta } = await changeTypes(record)
-    if (meta.status !== 200) {
-      return message.error(meta.msg)
-    }
-    message.success(meta.msg)
+    await changeTypes(record)
+    message.success('修改成功')
     ref.current.reload()
     return null
   }
@@ -43,11 +40,11 @@ const UsersList: React.FC<TableListItem> = () => {
 
   // 删除用户
   const deleteUser = async (record: any) => {
-    const { meta } = await deleteUsers(record)
-    if (meta.status !== 200) {
-      return message.error(meta.msg)
+    const data = await deleteUsers(record)
+    if (!data) {
+      return
     }
-    message.success(meta.msg)
+    message.success('删除成功')
     ref.current.reload()
     return null
   }
@@ -68,17 +65,15 @@ const UsersList: React.FC<TableListItem> = () => {
   // 添加和修改用户
   const createUsers = async (data: any) => {
     if (judge) {
-      const data = await changeUsers(data, amendUser)
-      if (!data) {
-        // message.error(meta.msg)
-        message.success('123')
+      const res = await changeUsers(data, amendUser)
+      if (res) {
+        message.success('编辑成功')
       }
     } else {
-      const { meta } = await addUsers(data)
-      if (meta.status !== 201) {
-        message.error(meta.msg)
+      const res = await addUsers(data)
+      if (res) {
+        message.success('创建成功')
       }
-      message.success(meta.msg)
     }
 
     ref.current.reload()
@@ -87,12 +82,12 @@ const UsersList: React.FC<TableListItem> = () => {
 
   // 分配角色对话框
   const showRoleBox = async (Data: any) => {
-    const { data, meta } = await getRoles()
-    if (meta.status === 200) {
+    const data = await getRoles()
+    if (data) {
       setRoleDataList(data)
+      setRoleData(Data)
+      setshowRole(true)
     }
-    setRoleData(Data)
-    setshowRole(true)
   }
 
   const allocationUserRole = async (id: number, Role: any) => {
@@ -198,8 +193,8 @@ const UsersList: React.FC<TableListItem> = () => {
           </Button>,
         ]}
         pagination={{
-          defaultPageSize: 2,
-          pageSizeOptions: ['2', '5', '8', '12'],
+          defaultPageSize: 5,
+          pageSizeOptions: ['5', '8', '12'],
           showQuickJumper: true,
         }}
         request={async (params) => {
