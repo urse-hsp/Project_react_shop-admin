@@ -1,5 +1,5 @@
 import request from 'umi-request'
-import { LoginParamsType, QueryTableDataProps } from './data'
+import type { LoginParamsType, QueryTableDataProps } from './data'
 
 export interface SetAllocationRole {
   id: number
