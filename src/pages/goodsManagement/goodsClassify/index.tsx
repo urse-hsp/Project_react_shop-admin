@@ -5,7 +5,7 @@ import { PageHeaderWrapper } from '@ant-design/pro-layout'
 import { DeleteOutlined, EditOutlined, QuestionCircleOutlined, CheckCircleOutlined, CloseCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import Classify from './components/classify'
 import { queryTableData, deleteUsers, addClassify, amendClassify } from './service'
-import { TableListItem, AddClassifyProps, QueryTableDataProps } from './data.d'
+import type { TableListItem, AddClassifyProps, QueryTableDataProps } from './data.d'
 
 import styles from './index.less'
 
@@ -14,7 +14,7 @@ const GoodsClassify: React.FC<TableListItem> = () => {
   const [modalVisible, setModalVisible] = useState(false) // 显示对话框
   const [judge, setJudge] = useState(true) // 判断是添加还是修改
   const [classifyData, setClassifyData] = useState([]) // 判断是添加还是修改
-  const [amendClassifyData, setamendClassifyData] = useState<Number | undefined>() // 判断是添加还是修改
+  const [amendClassifyData, setamendClassifyData] = useState<number | undefined>() // 判断是添加还是修改
 
   // 关闭对话框时触发
   const onCancel = (form: any) => {
@@ -32,8 +32,8 @@ const GoodsClassify: React.FC<TableListItem> = () => {
       pageSize: undefined, // 当前每页显示多少条数据
     }
     if (judgeBoole) {
-      const { data, meta } = await queryTableData(queryInfo)
-      if (meta.status !== 200) return false
+      const data = await queryTableData(queryInfo)
+      if (!data) return false
       setClassifyData(data)
     } else {
       setamendClassifyData(record)
@@ -43,12 +43,11 @@ const GoodsClassify: React.FC<TableListItem> = () => {
 
   // 删除分类
   const removeConfirm = async (record: any) => {
-    const { meta } = await deleteUsers(record.cat_id)
-    if (meta.status !== 200) {
-      return message.error(meta.msg)
+    const res = await deleteUsers(record.cat_id)
+    if (res) {
+      ref.current.reload()
+      return message.success('删除成功')
     }
-    ref.current.reload()
-    return message.success('删除成功')
   }
 
   const affirm = (form: any) => {
@@ -66,21 +65,19 @@ const GoodsClassify: React.FC<TableListItem> = () => {
         params.cat_pid = values.fatherClassify[values.fatherClassify.length - 1]
       }
       if (judge) {
-        const { meta } = await addClassify(params)
-        if (meta.status !== 201) {
-          return message.error(meta.msg)
+        const res = await addClassify(params)
+        if (res) {
+          message.success('创建成功')
         }
-        message.success('创建成功')
       } else {
         const param = {
           amendClassifyData,
           cat_name: values.compileClassifyName,
         }
-        const { meta } = await amendClassify(param)
-        if (meta.status !== 200) {
-          return message.error(meta.msg)
+        const res = await amendClassify(param)
+        if (res) {
+          message.success('修改成功')
         }
-        message.success('修改成功')
       }
       ref.current.reload()
       setModalVisible(false)
@@ -192,18 +189,20 @@ const GoodsClassify: React.FC<TableListItem> = () => {
             current: params.current, // 当前页数
             pageSize: params.pageSize, // 当前每页显示多少条数据
           }
-          const { data, meta } = await queryTableData(queryInfo)
-          if (meta.status !== 200) {
+          const res = await queryTableData(queryInfo)
+
+          if (!res) {
             return false
           }
+          console.log(res, 'res')
 
-          recursion(data.result)
+          recursion(res.data)
           const result = {
-            data: data.result,
-            total: data.total,
+            data: res.data,
+            total: res.total,
             success: true,
-            pageSize: params.pageSize,
-            current: params.current,
+            pageSize: res.pageSize,
+            current: res.current,
           }
           return result
         }}

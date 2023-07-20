@@ -129,17 +129,22 @@ const GoodsList: React.FC<TableListItem> = () => {
           current: params.current, // 当前页数
           pageSize: params.pageSize, // 当前每页显示多少条数据
         }
-        const { data, meta } = await queryTableData(queryInfo)
-        if (meta.status !== 200) return
-        data.goods.map((item: any, index: any) => {
+        const res = await queryTableData(queryInfo)
+        if (!res) {
+          return
+        }
+        console.log(res, 'res')
+
+        const { data } = res
+        data.map((item: any, index: any) => {
           const Obj = item
           Obj.key = item.goods_id
           Obj.index = index + 1
           return Obj
         })
         const result: ResultProps = {
-          data: data.goods,
-          total: data.total,
+          data: data,
+          total: res.total,
           success: true,
           pageSize: params.pageSize,
           current: params.current,

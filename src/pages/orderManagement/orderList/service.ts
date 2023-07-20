@@ -1,5 +1,5 @@
 import request from 'umi-request'
-import { QueryTableDataProps, AmendOrdeStatusProps } from './data'
+import type { QueryTableDataProps, AmendOrdeStatusProps } from './data'
 
 // 订单数据列表
 export async function queryTableData(params: QueryTableDataProps) {

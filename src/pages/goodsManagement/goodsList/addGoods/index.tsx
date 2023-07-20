@@ -124,9 +124,9 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
 
   // 添加页面获取商品分类参数
   const getDataList = async () => {
-    const { data, meta } = await getGoodsClassifyList()
-    if (meta.status !== 200) {
-      return message.error(meta.msg)
+    const data = await getGoodsClassifyList()
+    if (!data) {
+      return
     }
     setclassifyDataList(data)
     return true
@@ -187,7 +187,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
   const onChangeImg = (file: any) => {
     const res = file.file.response
     if (res) {
-      if (res.meta.status === 200) goodsImg.push({ pic: res.data.tmp_path })
+      // if (res.meta.status === 200) goodsImg.push({ pic: res.data.tmp_path })
     }
   }
 
@@ -350,7 +350,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
             {attribute()}
           </TabPane>
           <TabPane tab="商品图片" key="3">
-            <Upload {...Uploads}>
+            <Upload {...Uploads} withCredentials>
               <Button>
                 <UploadOutlined /> 上传图片
               </Button>
