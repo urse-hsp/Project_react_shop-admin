@@ -22,13 +22,12 @@ const GoodsList: React.FC<TableListItem> = () => {
 
   // 删除用户
   const deleteUser = async (record: any) => {
-    const { meta } = await deleteUsers(record)
-    if (meta.status !== 200) {
-      return message.error(meta.msg)
+    const res = await deleteUsers(record)
+    if (res) {
+      message.success('删除成功')
+      ref.current.reload()
+      return null
     }
-    message.success(meta.msg)
-    ref.current.reload()
-    return null
   }
 
   // 点击修改去修改页面 获取当前商品数据传递过去
