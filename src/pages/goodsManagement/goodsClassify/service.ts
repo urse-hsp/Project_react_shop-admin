@@ -1,5 +1,5 @@
 import request from 'umi-request'
-import { LoginParamsType, QueryTableDataProps, AddClassifyProps, AmendClassifyProps } from './data'
+import type { LoginParamsType, QueryTableDataProps, AddClassifyProps, AmendClassifyProps } from './data'
 
 // 请求用户列表
 export async function queryTableData(params: QueryTableDataProps) {

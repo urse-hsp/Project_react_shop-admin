@@ -1,5 +1,5 @@
 import request from 'umi-request'
-import { GetParameterListProps, SetAttributesProps, RemoveParameterProps, GetAttributesProps, RedactAttributes } from './data'
+import type { GetParameterListProps, SetAttributesProps, RemoveParameterProps, GetAttributesProps, RedactAttributes } from './data'
 
 // 商品分类数据列表
 export async function getClassifyList() {

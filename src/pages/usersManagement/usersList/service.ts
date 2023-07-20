@@ -16,8 +16,12 @@ export async function queryTableData(params: QueryTableDataProps) {
 
 // 修改用户状态
 export async function changeTypes(params: LoginParamsType) {
-  return request(`users/${params.id}/state/${!params.mg_state}`, {
+  return request(`users/${params.id}`, {
     method: 'put',
+    data: {
+      state: !params.mg_state,
+      type: 'state',
+    },
   })
 }
 
@@ -57,10 +61,11 @@ export async function getRoles() {
 
 // 获取角色
 export async function allocationRole(params: SetAllocationRole) {
-  return request(`users/${params.id}/role`, {
+  return request(`users/${params.id}`, {
     method: 'put',
     data: {
       rid: params.Role,
+      type: 'role',
     },
   })
 }

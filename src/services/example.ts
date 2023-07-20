@@ -8,5 +8,8 @@ export interface ParamsType {
 }
 
 export async function getJurisdictionList() {
-  return request(`rights/list`)
+  return request(`rights`, {
+    method: 'get',
+    params: { type: 'list' },
+  })
 }

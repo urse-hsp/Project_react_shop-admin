@@ -51,13 +51,13 @@ class JurisdictionList extends Component<TableListItem> {
 
   // 读取数据
   async componentDidMount() {
-    const { data, meta } = await getJurisdictionList()
-    data.map((item: any, index: any) => {
-      const Obj = item
-      Obj.key = index + 1
-      return Obj
-    })
-    if (meta.status === 200) {
+    const data = await getJurisdictionList()
+    if (data) {
+      data.map((item: any, index: any) => {
+        const Obj = item
+        Obj.key = index + 1
+        return Obj
+      })
       this.setState({
         dataList: data,
       })

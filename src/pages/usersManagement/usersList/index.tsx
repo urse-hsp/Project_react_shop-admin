@@ -26,9 +26,12 @@ const UsersList: React.FC<TableListItem> = () => {
 
   // 修改用户状态
   const changeType = async (record: any) => {
-    await changeTypes(record)
-    message.success('修改成功')
-    ref.current.reload()
+    const res = await changeTypes(record)
+    if (res) {
+      message.success('修改成功')
+      ref.current.reload()
+    }
+
     return null
   }
 
@@ -91,13 +94,12 @@ const UsersList: React.FC<TableListItem> = () => {
   }
 
   const allocationUserRole = async (id: number, Role: any) => {
-    const { meta } = await allocationRole({ id, Role })
-    if (meta.status !== 200) {
-      return message.error(meta.msg)
+    const res = await allocationRole({ id, Role })
+    if (res) {
+      message.success('分配角色成功')
+      setshowRole(false)
+      return ref.current.reload()
     }
-    message.success('分配角色成功')
-    setshowRole(false)
-    return ref.current.reload()
   }
 
   const title = (

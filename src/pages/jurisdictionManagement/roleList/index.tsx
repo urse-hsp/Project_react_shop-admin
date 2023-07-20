@@ -42,9 +42,12 @@ const RoleList: React.FC<{}> = () => {
   // 获取角色列表
   const getRoleListData = async () => {
     const res = await getroleList()
-    if (res.meta.status === 200) {
-      recursion(res.data, false)
-      setRoleData(res.data)
+    if (res) {
+      recursion(res, false)
+      setRoleData(res)
+
+      // recursion(res.data, false)
+      // setRoleData(res.data)
     }
   }
 
@@ -60,13 +63,12 @@ const RoleList: React.FC<{}> = () => {
       cancelText: 'No',
       onOk: async () => {
         const recordIds = recordId.id
-        const { meta } = await deleteRoleJurisdiction({ recordIds, itemId })
-        if (meta.status !== 200) {
-          return message.error(meta.msg)
+        const res = await deleteRoleJurisdiction({ recordIds, itemId })
+        if (res) {
+          message.success('删除该限权成功')
+          getRoleListData()
+          return true
         }
-        message.success('删除该限权成功')
-        getRoleListData()
-        return true
       },
       onCancel() {},
     })
@@ -90,30 +92,27 @@ const RoleList: React.FC<{}> = () => {
 
   // 删除角色
   const removeConfirm = async (_: any) => {
-    const { meta } = await deleteRoleList(_.id)
-    if (meta.status !== 200) {
-      return message.error(meta.msg)
+    const res = await deleteRoleList(_.id)
+    if (res) {
+      message.success('删除成功')
+      getRoleListData()
+      return null
     }
-    message.success('删除成功')
-    getRoleListData()
-    return null
   }
 
   // 添加角色和修改角色
   const addRoleList = async (param: any) => {
     if (!alterAdd) {
-      const { meta } = await AddRoleList(param)
-      if (meta.status !== 201) {
-        return message.error(meta.msg)
+      const res = await AddRoleList(param)
+      if (res) {
+        message.success('角色创建成功')
       }
-      message.success('角色创建成功')
     } else {
       const { id } = amendData
-      const { meta } = await amendRoleList({ id, param })
-      if (meta.status !== 200) {
-        return message.error(meta.msg)
+      const res = await amendRoleList({ id, param })
+      if (res) {
+        message.success('角色修改成功')
       }
-      message.success('角色修改成功')
     }
     setVisible(false)
     getRoleListData()
@@ -125,25 +124,24 @@ const RoleList: React.FC<{}> = () => {
     setSetRoleId(datas.id)
     setShowAllocation(true)
     recursion(datas.children, true)
-    const { data, meta } = await getAllJurisdiction()
-    if (meta.status !== 200) {
-      return message.error(meta.msg)
+    const data = await getAllJurisdiction()
+    if (data) {
+      recursion(data, false)
+      setAllocationJurisdiction(data)
     }
-    recursion(data, false)
-    setAllocationJurisdiction(data)
+
     return true
   }
 
   // 设置角色权限
   const setRole = async (jurisdictionId: any) => {
-    const { meta } = await setRolejurisdiction({ setRoleId, jurisdictionId })
-    if (meta.status !== 200) {
-      return message.error(meta.msg)
+    const res = await setRolejurisdiction({ setRoleId, jurisdictionId })
+    if (res) {
+      message.success('授权成功')
+      setShowAllocation(false)
+      getRoleListData()
+      return true
     }
-    message.success('授权成功')
-    setShowAllocation(false)
-    getRoleListData()
-    return true
   }
 
   useEffect(() => {

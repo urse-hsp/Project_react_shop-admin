@@ -30,8 +30,8 @@ class ClassifyList extends React.Component {
 
   // 获取参数
   getParameter = async () => {
-    const { data, meta } = await getParameterList({ id: this.state.DefaultValue[2], sel: this.state.parameterType })
-    if (meta.status === 200) {
+    const data = await getParameterList({ id: this.state.DefaultValue[2], sel: this.state.parameterType })
+    if (data) {
       data.map((item: any, index: number) => {
         const Obj = item
         Obj.key = item.attr_id
@@ -61,8 +61,8 @@ class ClassifyList extends React.Component {
 
   // 获取商品分类列表
   getData = async () => {
-    const { data, meta } = await getClassifyList()
-    if (meta.status !== 200) return message.error(meta.msg)
+    const data = await getClassifyList()
+    if (!data) return
     return this.setState({
       ClassIfListData: data,
     })
@@ -169,9 +169,9 @@ class ClassifyList extends React.Component {
 
   // 删除参数
   removeConfirm = async (record: any) => {
-    const { meta } = await removeParameter({ id: this.state.DefaultValue[2], attrId: record.attr_id })
-    if (meta.status !== 200) {
-      return message.error(meta.msg)
+    const res = await removeParameter({ id: this.state.DefaultValue[2], attrId: record.attr_id })
+    if (!res) {
+      return
     }
     message.success('删除成功')
     return this.getParameter()
@@ -190,19 +190,21 @@ class ClassifyList extends React.Component {
   // 对话框点击确定时
   handleOk = async (values: any) => {
     if (this.state.Boole) {
-      const { meta } = await getAttributes({ id: this.state.DefaultValue[2], attr_name: values.attr_name, attr_sel: this.state.parameterType })
-      if (meta.status !== 201) return message.error(meta.msg)
-      message.success('添加成功')
+      const res = await getAttributes({ id: this.state.DefaultValue[2], attr_name: values.attr_name, attr_sel: this.state.parameterType })
+      if (res) {
+        message.success('添加成功')
+      }
     } else {
       const Modifications: any = this.state.AddModification
-      const { meta } = await redactAttributes({
+      const res = await redactAttributes({
         id: this.state.DefaultValue[2],
         attrId: Modifications.attr_id,
         attr_name: values.attr_name,
         attr_sel: this.state.parameterType,
       })
-      if (meta.status !== 200) return message.error(meta.msg)
-      message.success('修改成功')
+      if (res) {
+        message.success('修改成功')
+      }
     }
     this.setState({ visible: false })
     return this.getParameter()

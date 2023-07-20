@@ -41,9 +41,11 @@ const OrderList: React.FC<{}> = () => {
 
   // 确认修改状态
   const amendStatus = async (params: any) => {
-    const { meta } = await amendOrdeStatus(params)
-    if (meta.status !== 201) {
-      return message.error(meta.msg)
+    console.log(params, 'params')
+
+    const res = await amendOrdeStatus(params)
+    if (!res) {
+      return
     }
     message.success('修改成功')
     ref.current.reload()
@@ -53,8 +55,10 @@ const OrderList: React.FC<{}> = () => {
   // 显示物理信息对话框
   const showLogistics = async () => {
     setShowHideLogistics(true)
-    const { meta, data } = await LogisticsInformation({ id: 1106975712662 })
-    if (meta.status === 200) setLogisticsInformationList(data)
+    const res = await LogisticsInformation({ id: 1106975712662 })
+    if (res.result) {
+      setLogisticsInformationList(res.data)
+    }
   }
 
   const title = (
@@ -161,17 +165,17 @@ const OrderList: React.FC<{}> = () => {
             current: params.current, // 当前页数
             pageSize: params.pageSize, // 当前每页显示多少条数据
           }
-          const { data, meta } = await queryTableData(queryInfo)
-          if (meta.status !== 200) return
-          data.goods.map((item: any, index: any) => {
+          const res = await queryTableData(queryInfo)
+          if (!res) return
+          res.data.map((item: any, index: any) => {
             const Obj = item
             Obj.key = item.order_id
             Obj.index = index + 1
             return Obj
           })
           const result = {
-            data: data.goods,
-            total: data.total,
+            data: res.data,
+            total: res.total,
             success: true,
             pageSize: params.pageSize,
             current: params.current,

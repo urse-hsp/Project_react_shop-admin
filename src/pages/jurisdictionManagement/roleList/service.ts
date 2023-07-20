@@ -1,5 +1,5 @@
 import request from 'umi-request'
-import { ParamsType, DeleteParamsType, AmendParamsType, SetRolejurisdiction } from './data'
+import type { ParamsType, DeleteParamsType, AmendParamsType, SetRolejurisdiction } from './data'
 
 // 获取数据
 export async function getroleList() {
@@ -29,22 +29,24 @@ export async function deleteRoleList(id: ParamsType) {
 }
 // 删除角色指定权限
 export async function deleteRoleJurisdiction(params: DeleteParamsType) {
-  return request(`roles/${params.recordIds}/rights/${params.itemId}`, {
+  return request(`roles/${params.recordIds}`, {
     method: 'delete',
+    data: { type: 'rights', rightId: params.itemId },
   })
 }
 
 // 获取所有权限
 export async function getAllJurisdiction() {
-  return request(`rights/tree`, {
+  return request(`rights`, {
     method: 'get',
+    params: { type: 'tree' },
   })
 }
 
-// 获取所有权限
+// 设置权限
 export async function setRolejurisdiction(params: SetRolejurisdiction) {
-  return request(`roles/${params.setRoleId}/rights`, {
-    method: 'post',
-    data: { rids: params.jurisdictionId },
+  return request(`roles/${params.setRoleId}`, {
+    method: 'put',
+    data: { rids: params.jurisdictionId, type: 'rights' },
   })
 }
