@@ -8,7 +8,6 @@ import type { AddGoodsProps, UploadProps } from './data'
 import { getGoodsClassifyList, getGoodsClassifyparameter, addTheGoods, amendGoods, getGoodsInfo } from './service'
 import styles from './styles.less'
 import { useLocation } from 'umi'
-import { number } from 'prop-types'
 
 const { Step } = Steps
 const { TabPane } = Tabs
@@ -62,8 +61,8 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
 
   // 点击tab 标签1 获取商品参数
   const gitManyData = async (values: any) => {
-    const { data, meta } = await getGoodsClassifyparameter({ id: values.goods_cat[2], sel: 'many' })
-    if (meta.status !== 200) return message.error(meta.msg)
+    const data = await getGoodsClassifyparameter({ id: values.goods_cat[2], sel: 'many' })
+    if (!data) return
     data.forEach((item: any) => {
       const Obj = item
       Obj.attrs = Obj.attr_vals.split(',')
@@ -77,8 +76,8 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
   // 点击tab 标签1 获取商品属性
   const gitOnlyData = async (values: any) => {
     if (onlyData.length === 0) {
-      const { data, meta } = await getGoodsClassifyparameter({ id: values.goods_cat[2], sel: 'only' })
-      if (meta.status !== 200) return message.error(meta.msg)
+      const data = await getGoodsClassifyparameter({ id: values.goods_cat[2], sel: 'only' })
+      if (!data) return
       data.map((item: any) => {
         const Obj = item
         Obj.attr_value = Obj.attr_vals
@@ -142,16 +141,18 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
 
     if (!query.id) return
     const res = await getGoodsInfo(Number(query.id))
-    setInfo(res.data)
+    if (!res) return
+    setInfo(res)
     setAddAmend(true)
     // 修改页面渲染数据
-    const Data = res.data
+    const Data = res
     form.setFieldsValue({
       goods_name: Data.goods_name,
       goods_price: Data.goods_price,
       goods_weight: Data.goods_weight,
       goods_number: Data.goods_number,
-      goods_cat: Data.goods_cat,
+      goods_cat: Data.goods_cat.split(','),
+      // attrs: Data.attrs,
     })
 
     // 处理图片数据
@@ -163,14 +164,16 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
     })
 
     // 商品参数处理
-    Data.attrs.map((item: any) => {
-      const Obj = item
-      if (Obj.attr_sel === 'many') {
-        Obj.parameter = Obj.attr_value.split(',')
-      }
-      return Obj
-    })
-    setParameter(Data.attrs)
+    if (Data?.attrs) {
+      Data?.attrs.map((item: any) => {
+        const Obj = item
+        if (Obj.attr_sel === 'many') {
+          Obj.parameter = Obj.attr_value.split(',')
+        }
+        return Obj
+      })
+      setParameter(Data.attrs)
+    }
 
     setGoodsImg(Data.pics)
     setactionGoodscat(Data.goods_cat)
@@ -185,9 +188,18 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
 
   // 上次图片改变时的回调
   const onChangeImg = (file: any) => {
-    const res = file.file.response
-    if (res) {
-      // if (res.meta.status === 200) goodsImg.push({ pic: res.data.tmp_path })
+    if (file.file.status === 'done') {
+      const img_data = file.file.response
+      setGoodsImg([...goodsImg, { pic: img_data.tmp_path }])
+    } else if (file.file.status === 'removed') {
+      const img_data = file.file
+      let newImg = []
+      if (img_data.pics_id) {
+        newImg = goodsImg.filter((item: any) => item.pics_id !== img_data.pics_id)
+      } else {
+        newImg = goodsImg.filter((item: any) => item.tmp_path !== img_data.tmp_path)
+      }
+      setGoodsImg(newImg)
     }
   }
 
@@ -277,30 +289,37 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
 
   // 完成
   const accomplish = () => {
+    console.log(goodsImg, '123')
+
     form.validateFields().then(async (values) => {
       const GoodsData = {
         goods_name: values.goods_name,
-        goods_cat: values.goods_cat,
+        goods_cat: values.goods_cat.join(),
         goods_price: values.goods_price,
         goods_number: values.goods_number,
         goods_weight: values.goods_weight,
         goods_introduce: editorContent,
-        pics: goodsImg,
+        pics: goodsImg.map((item: any) => {
+          item.url = item.pic
+          return item
+        }),
         attrs: parameter,
       }
 
+      console.log(goodsImg, 'goodsImg123')
+
       let res
-      let status
       if (!addAmend) {
         res = await addTheGoods(GoodsData)
-        status = 201
       } else {
         res = await amendGoods({ id: info.goods_id, data: GoodsData })
-        status = 200
       }
-      if (res.meta.status !== status) return message.error(res.meta.msg)
-      history.replace('/goodsManagement/goodsList/List')
-      return message.success(addAmend ? '修改商品成功' : '添加商品成功')
+      console.log(res, 'res123213')
+
+      if (res) {
+        history.replace('/goodsManagement/goodsList/List')
+        return message.success(addAmend ? '修改商品成功' : '添加商品成功')
+      }
     })
   }
 
@@ -344,7 +363,7 @@ const AddGoods: React.FC<AddGoodsProps> = (props) => {
             </Form.Item>
           </TabPane>
           <TabPane tab="商品参数" key="1">
-            {argument()}
+            {argument()}312
           </TabPane>
           <TabPane tab="商品属性" key="2">
             {attribute()}

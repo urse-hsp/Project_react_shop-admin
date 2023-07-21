@@ -32,8 +32,8 @@ const GoodsList: React.FC<TableListItem> = () => {
 
   // 点击修改去修改页面 获取当前商品数据传递过去
   const goModification = async (id: number) => {
-    const { data, meta } = await getGoods({ id })
-    if (meta.status !== 200) return message.error(meta.msg)
+    const data = await getGoods({ id })
+    if (!data) return
     const Goodscat = data.goods_cat.split(',')
     const action = Goodscat.map(Number)
     data.goods_cat = action
