@@ -1,4 +1,4 @@
-FROM node:14.17.3 as BUILD
+FROM node:v16.17.0 as BUILD
 WORKDIR  /app
 COPY package*.json ./
 RUN npm install -g cnpm
