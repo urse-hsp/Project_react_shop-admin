@@ -1,7 +1,8 @@
 FROM node:14.17.3 as BUILD
 WORKDIR  /app
 COPY package*.json ./
-RUN npm install
+RUN npm install -g cnpm
+RUN cnpm install
 COPY . .
 RUN npm run build
 
