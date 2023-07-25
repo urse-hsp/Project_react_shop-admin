@@ -7,7 +7,7 @@ const { REACT_APP_ENV } = process.env
 
 export default defineConfig({
   exportStatic: {},
-  history: { type: 'hash' },
+  // history: { type: 'hash' },
   // base: '/app',
   // hash: true,
   antd: {},
