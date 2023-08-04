@@ -6,7 +6,7 @@ RUN cnpm install
 COPY . .
 RUN npm run build:prod
 
-FROM nginx:latest
+FROM nginx:10-alpine
 # 前端静态放入 /app
 COPY --from=BUILD /app/dist /app
 COPY --from=BUILD /app/nginx/nginx.conf /etc/nginx/nginx.conf
