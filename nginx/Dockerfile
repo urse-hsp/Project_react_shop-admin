@@ -1,9 +1,11 @@
 # 基础镜像
-FROM node:17.3.0 as BUILD
+FROM node:16.17.0 as BUILD
 # 创建一个应用目录
 WORKDIR /usr/src/app
 # 这个星号通配符意思是复制package.json和package-lock.json,复制到当前应用目录
 COPY package*.json ./
+
+RUN npm install -g cnpm
 # 安装应用依赖
 RUN npm install
 # 安装完毕后复制当前目录所有文件到镜像目录里面
