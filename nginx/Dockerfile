@@ -1,5 +1,5 @@
 # 基础镜像
-FROM node as BUILD
+FROM node:17.3.0 as BUILD
 # 创建一个应用目录
 WORKDIR /usr/src/app
 # 这个星号通配符意思是复制package.json和package-lock.json,复制到当前应用目录
