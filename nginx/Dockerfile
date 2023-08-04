@@ -1,12 +1,13 @@
 FROM node:16.17.0 as BUILD
 WORKDIR  /app
 COPY package*.json ./
+VOLUME ./node_modules /app/node_modules
 RUN npm install -g cnpm
 RUN cnpm install
 COPY . .
-RUN cnpm run build:prod
+RUN npm run build
 
-FROM nginx:10-alpine
+FROM nginx:latest
 # 前端静态放入 /app
 COPY --from=BUILD /app/dist /app
 COPY --from=BUILD /app/nginx/nginx.conf /etc/nginx/nginx.conf
