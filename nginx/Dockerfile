@@ -4,7 +4,7 @@ COPY package*.json ./
 RUN npm install -g cnpm
 RUN cnpm install
 COPY . .
-RUN npm run build:prod
+RUN cnpm run build:prod
 
 FROM nginx:10-alpine
 # 前端静态放入 /app
